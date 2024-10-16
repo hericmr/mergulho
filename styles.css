@@ -1,0 +1,116 @@
+
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column; 
+}
+
+
+body {
+    background-image: url('https://scontent.fcpq1-1.fna.fbcdn.net/v/t31.18172-8/26232553_1476506899113693_496653307819256048_o.jpg?_nc_cat=110&ccb=1-7&_nc_sid=2a1932&_nc_ohc=35c2QH5NPAkQ7kNvgESDGgc&_nc_zt=23&_nc_ht=scontent.fcpq1-1.fna&_nc_gid=A8G6oABu9uczc7AkLPDfi1x&oh=00_AYCnzhwcFK-xTSlBlNj4IikAXfaYZ3EvDSnUtWmsSBdKvQ&oe=673691E6');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    flex: 1; /* Faz o body ocupar o espaço restante */
+}
+
+.overlay {
+
+    height: 100%; /* Altura total da tela */
+    display: flex; /* Flexbox */
+    align-items: center; /* Centraliza verticalmente */
+    justify-content: center; /* Centraliza horizontalmente */
+    flex-direction: column; /* Coloca os elementos em coluna */
+    flex: 1; /* Faz a overlay ocupar o espaço restante */
+    width: 100%; /* Define uma largura maior para a coluna */
+}
+
+/* Estilos do texto */
+h1 {
+    font-size: 3.5em; /* Tamanho da fonte */
+    color: rgba(96, 11, 11, 0.9); /* Cor do texto */
+    text-align: center; /* Centraliza o texto */
+    margin-bottom: 0px; /* Margem inferior */
+    margin-top: 20px; /* Margem superior */
+}
+
+p {
+    font-size: 1.5em; /* Tamanho da fonte */
+    color: rgb(10, 1, 1); /* Cor do texto */
+    text-align: center; /* Centraliza o texto */
+}
+
+p2 {
+    font-size: 1em; /* Tamanho da fonte */
+    color: rgb(10, 1, 1); /* Cor do texto */
+    text-align: center; /* Centraliza o texto */
+}
+
+#mar {
+    text-align: center; /* Centraliza o texto */
+    color: rgb(0, 0, 0);    /* Cor do texto */
+    margin-top: 30px; /* Margem superior */
+}
+
+button {
+    background-color: rgba(109, 0, 0, 0.8);
+    color: white;
+    padding: 10px 20px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: #b46246;
+}
+
+#resultado {
+    background-color: rgba(255, 114, 114, 0.259);
+    color: black;
+    padding: 15px;
+    margin-top: auto; /* Faz a margem superior ocupar o espaço restante */
+    border-radius: 10px;
+    margin: 0px auto 5px auto; /* Centraliza horizontalmente e adiciona margem inferior */
+    max-height: 400px; /* Altura máxima para o resultado */
+    width: auto; /* Largura máxima para o resultado */
+    overflow-y: auto; /* Rolagem interna se necessário */
+    width: 90%; /* Aumenta a largura para a caixa */
+    font-size: 0.8em; /* Tamanho da fonte de p2 */
+    color: rgb(10, 1, 1); /* Cor do texto de p2 */
+    text-align: center; /* Centraliza o texto de p2 */
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2em;
+    }
+
+    p {
+        font-size: 1.2em;
+    }
+
+    button {
+        font-size: 1em;
+        padding: 8px 16px;
+    }
+
+    #resultado {
+        width: 0%;
+    }
+}
+
+/* Footer Styles */
+footer {
+    background-color: rgba(1, 0, 11, 0.327);
+    color: white;
+    text-align: center;
+    padding: 2px;
+    width: 100%;
+    /* Removed position and bottom properties */
+}
