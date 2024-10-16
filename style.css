@@ -1,1 +1,52 @@
-@keyframes swim{0%{transform:translateX(-500%)}100%{transform:translateX(100vw)}}.fish{background-image:url('http://www.geertjanhendriks.nl/codepen/form/fish.png');width:235px;height:104px;position:absolute;animation:10s linear infinite swim}#fish{top:120px}#fish2{top:260px;animation-delay:3s}#mar{height:100vh;background-color:#98d4f3;overflow:hidden;position:relative}header{height:80px;background:url('http://www.geertjanhendriks.nl/codepen/form/golf.png') bottom repeat-x}footer{position:fixed;bottom:0;left:0;width:100%;background-color:#004367;color:#fff;text-align:center;padding:1rem;z-index:10}
+@keyframes swim{0%{transform:translateX(-500%)}100%{transform:translateX(100vw)}}.fish{background-image:url('http://www.geertjanhendriks.nl/codepen/form/fish.png');width:235px;height:104px;position:absolute;animation:10s linear infinite swim}#fish{top:120px}#fish2{top:260px;animation-delay:3s}#mar{height:100vh;background-color:#98d4f3;overflow:hidden;position:relative}header{height:80px;background:url('http://www.geertjanhendriks.nl/codepen/form/golf.png') bottom repeat-x}footer{position:fixed;bottom:0;left:0;width:100%;background-color:#004367;color:#fff;text-align:center;padding:1rem;z-index:10}@keyframes swim {
+    0% { transform: translateX(-500%); }
+    100% { transform: translateX(100vw); }
+  }
+  
+  @keyframes wave {
+    0% { background-position: 0 bottom; }
+    100% { background-position: 100vw bottom; }
+  }
+  
+  .fish {
+    background-image: url('http://www.geertjanhendriks.nl/codepen/form/fish.png');
+    width: 235px;
+    height: 104px;
+    position: absolute;
+    animation: 10s linear infinite swim;
+  }
+  
+  #fish {
+    top: 120px;
+  }
+  
+  #fish2 {
+    top: 260px;
+    animation-delay: 3s;
+  }
+  
+  #mar {
+    height: 100vh;
+    background-color: #98d4f3;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  header {
+    height: 80px;
+    background: url('http://www.geertjanhendriks.nl/codepen/form/golf.png') bottom repeat-x;
+    animation: wave 50s linear infinite;
+  }
+  
+  footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #004367;
+    color: #fff;
+    text-align: center;
+    padding: 1rem;
+    z-index: 10;
+  }
+  
