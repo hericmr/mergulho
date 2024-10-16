@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Condições para o Mergulho em Santos</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column; 
+        }
+
+        /* Definindo a imagem de background */
+        body {
+            background-image: url('https://scontent.fcpq1-1.fna.fbcdn.net/v/t31.18172-8/26232553_1476506899113693_496653307819256048_o.jpg?_nc_cat=110&ccb=1-7&_nc_sid=2a1932&_nc_ohc=35c2QH5NPAkQ7kNvgESDGgc&_nc_zt=23&_nc_ht=scontent.fcpq1-1.fna&_nc_gid=A8G6oABu9uczc7AkLPDfi1x&oh=00_AYCnzhwcFK-xTSlBlNj4IikAXfaYZ3EvDSnUtWmsSBdKvQ&oe=673691E6');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            flex: 1; /* Faz o body ocupar o espaço restante */
+        }
+
+        /* Adicionando uma camada translúcida para melhor contraste */
+        .overlay {
+  
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            flex: 1; /* Faz a overlay ocupar o espaço restante */
+        }
+
+        /* Estilos do texto */
+        h1 {
+            font-size: 3.5em;
+            color: rgba(96, 11, 11, 0.9);
+            text-align: center;
+            margin-bottom: 0px;
+            margin-top: -300px;
+        }
+
+        p {
+            font-size: 1.5em;
+            color: rgb(135, 23, 23);
+            text-align: center;
+        }
+
+        #mar {
+            text-align: center;
+            color: rgb(0, 0, 0);
+            margin-top: 30px;
+        }
+
+        button {
+            background-color: rgba(109, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #b46246;
+        }
+
+        #resultado {
+            background-color: rgba(255, 73, 73, 0.378);
+            color: black;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            margin: 20px auto;
+            max-height: 200px; /* Altura máxima para o resultado */
+            overflow-y: auto; /* Rolagem interna se necessário */
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            p {
+                font-size: 1.2em;
+            }
+
+            button {
+                font-size: 1em;
+                padding: 8px 16px;
+            }
+
+            #resultado {
+                width: 0%;
+            }
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: rgba(1, 0, 11, 0.327);
+            color: white;
+            text-align: center;
+            padding: 2px;
+            width: 100%;
+            /* Removed position and bottom properties */
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay">
+        <h1><strong>Mestre dos Mares - Santos/SP</strong></h1>
+        <p id="status">Verifique condições de mergulho atuais em Santos...</p>
+
+        <div id="mar">
+            <button id="verificarBtn">Verificar condições</button>
+            <div id="resultado" class="hidden">Aqui estão as condições de mergulho.</div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <h3>&copy; 2024 Mestre dos Mares</h3>
+        <h3 class="text-sm">Desenvolvido pelo pirata <a href="https://hericmr.github.io/me " target="_blank" class="text-blue-500 underline">Héric Moura</a></h3>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
