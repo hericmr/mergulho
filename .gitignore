@@ -1,0 +1,36 @@
+# Dependências
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Arquivos de build
+/dist
+/build
+
+# Arquivos de ambiente
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Arquivos de cache
+.cache/
+.npm/
+.yarn/
+
+# Logs
+logs/
+*.log
+
+# Arquivos de sistema operacional
+.DS_Store
+Thumbs.db
+.directory
+
+# Editores e IDEs
+.idea/
+.vscode/
+*.swp
+*.swo 

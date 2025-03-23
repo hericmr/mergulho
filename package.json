@@ -1,0 +1,41 @@
+{
+  "name": "mergulho-app",
+  "version": "1.0.0",
+  "description": "Aplicativo para verificar condições de mergulho",
+  "main": "src/app.js",
+  "type": "module",
+  "scripts": {
+    "test": "jest",
+    "start": "http-server ./ -o --no-dotfiles -c-1 -P http://localhost:8080?"
+  },
+  "keywords": [
+    "mergulho",
+    "condições",
+    "meteorologia",
+    "marés"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.22.5",
+    "@babel/preset-env": "^7.22.5",
+    "babel-jest": "^29.5.0",
+    "http-server": "^14.1.1",
+    "jest": "^29.5.0",
+    "jest-environment-jsdom": "^29.5.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    },
+    "transformIgnorePatterns": [
+      "/node_modules/"
+    ]
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ]
+  }
+} 
