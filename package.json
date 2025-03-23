@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "jest",
-    "start": "http-server ./ -o --no-dotfiles -c-1 -P http://localhost:8080?"
+    "start": "http-server ./ -o --no-dotfiles -c-1 -P http://localhost:8080?",
+    "build": "mkdir -p dist && cp -R index.html src public dist/ && echo 'Build completed successfully!'"
   },
   "keywords": [
     "mergulho",
