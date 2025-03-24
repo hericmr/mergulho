@@ -12,11 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      STORMGLASS_API_KEY: "bf5e8542-8a21-11ef-8d8d-0242ac130003-bf5e8614-8a21-11ef-8d8d-0242ac130003"
-      STORMGLASS_API_KEY_ALT1: "ea996e2a-88a5-11ef-ae24-0242ac130003-ea996e98-88a5-11ef-ae24-0242ac130003"
-      STORMGLASS_API_KEY_ALT2: "6b7ca118-da20-11ee-8a07-0242ac130002-6b7ca186-da20-11ee-8a07-0242ac130002"
-      STORMGLASS_API_KEY_ALT3: "1d6c47a6-8a21-11ef-a0d5-0242ac130003-1d6c4814-8a21-11ef-a0d5-0242ac130003"
-      OPENWEATHER_API_KEY: "your_openweather_api_key_here"  # Substitua pela sua chave do OpenWeatherMap
+      STORMGLASS_API_KEY: ${{ secrets.STORMGLASS_API_KEY }}
+      OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
 
     steps:
       - name: Checkout do código
@@ -31,9 +28,6 @@ jobs:
         run: |
           echo "Verificando variáveis de ambiente..."
           if [ -z "$STORMGLASS_API_KEY" ]; then echo "STORMGLASS_API_KEY não configurada"; exit 1; fi
-          if [ -z "$STORMGLASS_API_KEY_ALT1" ]; then echo "STORMGLASS_API_KEY_ALT1 não configurada"; exit 1; fi
-          if [ -z "$STORMGLASS_API_KEY_ALT2" ]; then echo "STORMGLASS_API_KEY_ALT2 não configurada"; exit 1; fi
-          if [ -z "$STORMGLASS_API_KEY_ALT3" ]; then echo "STORMGLASS_API_KEY_ALT3 não configurada"; exit 1; fi
           if [ -z "$OPENWEATHER_API_KEY" ]; then echo "OPENWEATHER_API_KEY não configurada"; exit 1; fi
           echo "Todas as variáveis de ambiente estão configuradas"
           

@@ -20,9 +20,6 @@ CONFIG = {
     "LONGITUDE": -46.3336,
     "SITE_URL": "https://mestredosmares.com.br",
     "STORMGLASS_API_KEY": os.environ.get('STORMGLASS_API_KEY'),
-    "STORMGLASS_API_KEY_ALT1": os.environ.get('STORMGLASS_API_KEY_ALT1'),
-    "STORMGLASS_API_KEY_ALT2": os.environ.get('STORMGLASS_API_KEY_ALT2'),
-    "STORMGLASS_API_KEY_ALT3": os.environ.get('STORMGLASS_API_KEY_ALT3'),
     "OPENWEATHER_API_KEY": os.environ.get('OPENWEATHER_API_KEY')
 }
 
@@ -40,36 +37,27 @@ logger = logging.getLogger('MergulhoCheck')
 
 def get_fase_lua(lat, lon, data):
     """Consulta a fase lunar via StormGlass API"""
-    api_keys = [
-        CONFIG["STORMGLASS_API_KEY"],
-        CONFIG["STORMGLASS_API_KEY_ALT1"],
-        CONFIG["STORMGLASS_API_KEY_ALT2"],
-        CONFIG["STORMGLASS_API_KEY_ALT3"]
-    ]
-    
-    for api_key in api_keys:
-        try:
-            url = "https://api.stormglass.io/v2/astronomy/point"
-            params = {
-                "lat": lat,
-                "lng": lon,
-                "start": data.strftime("%Y-%m-%d"),
-                "end": data.strftime("%Y-%m-%d")
-            }
-            headers = {"Authorization": api_key}
-            
-            response = requests.get(url, params=params, headers=headers)
-            response.raise_for_status()
-            data = response.json()
-            
-            if data.get("hours"):
-                moon_phase = data["hours"][0]["moonPhase"]["noaa"]
-                return moon_phase
-        except Exception as e:
-            logger.error(f"Erro ao consultar fase lunar com chave {api_key[:10]}...: {e}")
-            continue
-    
-    return None
+    try:
+        url = "https://api.stormglass.io/v2/astronomy/point"
+        params = {
+            "lat": lat,
+            "lng": lon,
+            "start": data.strftime("%Y-%m-%d"),
+            "end": data.strftime("%Y-%m-%d")
+        }
+        headers = {"Authorization": CONFIG["STORMGLASS_API_KEY"]}
+        
+        response = requests.get(url, params=params, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+        
+        if data.get("hours"):
+            moon_phase = data["hours"][0]["moonPhase"]["noaa"]
+            return moon_phase
+        return None
+    except Exception as e:
+        logger.error(f"Erro ao consultar fase lunar: {e}")
+        return None
 
 def get_vento(lat, lon):
     """Consulta velocidade do vento via OpenWeatherMap API"""
@@ -117,39 +105,30 @@ def get_precipitacao(lat, lon):
 
 def get_mare(lat, lon, data):
     """Consulta altura da maré via StormGlass API"""
-    api_keys = [
-        CONFIG["STORMGLASS_API_KEY"],
-        CONFIG["STORMGLASS_API_KEY_ALT1"],
-        CONFIG["STORMGLASS_API_KEY_ALT2"],
-        CONFIG["STORMGLASS_API_KEY_ALT3"]
-    ]
-    
-    for api_key in api_keys:
-        try:
-            url = "https://api.stormglass.io/v2/tide/extremes/point"
-            params = {
-                "lat": lat,
-                "lng": lon,
-                "start": data.strftime("%Y-%m-%d"),
-                "end": data.strftime("%Y-%m-%d")
-            }
-            headers = {"Authorization": api_key}
-            
-            response = requests.get(url, params=params, headers=headers)
-            response.raise_for_status()
-            data = response.json()
-            
-            if data.get("data"):
-                # Encontrar a maré mais próxima do horário atual
-                now = datetime.now()
-                mare_atual = min(data["data"], 
-                               key=lambda x: abs((datetime.fromisoformat(x["time"].replace("Z", "+00:00")) - now).total_seconds()))
-                return mare_atual["height"]
-        except Exception as e:
-            logger.error(f"Erro ao consultar maré com chave {api_key[:10]}...: {e}")
-            continue
-    
-    return None
+    try:
+        url = "https://api.stormglass.io/v2/tide/extremes/point"
+        params = {
+            "lat": lat,
+            "lng": lon,
+            "start": data.strftime("%Y-%m-%d"),
+            "end": data.strftime("%Y-%m-%d")
+        }
+        headers = {"Authorization": CONFIG["STORMGLASS_API_KEY"]}
+        
+        response = requests.get(url, params=params, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+        
+        if data.get("data"):
+            # Encontrar a maré mais próxima do horário atual
+            now = datetime.now()
+            mare_atual = min(data["data"], 
+                           key=lambda x: abs((datetime.fromisoformat(x["time"].replace("Z", "+00:00")) - now).total_seconds()))
+            return mare_atual["height"]
+        return None
+    except Exception as e:
+        logger.error(f"Erro ao consultar maré: {e}")
+        return None
 
 def get_estacao():
     """Determina a estação do ano baseado na data atual"""
@@ -218,9 +197,6 @@ def main():
         # Verificar se as chaves de API estão configuradas
         api_keys = [
             ("STORMGLASS_API_KEY", CONFIG["STORMGLASS_API_KEY"]),
-            ("STORMGLASS_API_KEY_ALT1", CONFIG["STORMGLASS_API_KEY_ALT1"]),
-            ("STORMGLASS_API_KEY_ALT2", CONFIG["STORMGLASS_API_KEY_ALT2"]),
-            ("STORMGLASS_API_KEY_ALT3", CONFIG["STORMGLASS_API_KEY_ALT3"]),
             ("OPENWEATHER_API_KEY", CONFIG["OPENWEATHER_API_KEY"])
         ]
         
