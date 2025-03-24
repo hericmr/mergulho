@@ -216,8 +216,17 @@ def main():
         logger.info(f"Diretório atual: {os.getcwd()}")
         
         # Verificar se as chaves de API estão configuradas
-        if not CONFIG["STORMGLASS_API_KEY"] or not CONFIG["OPENWEATHER_API_KEY"]:
-            raise ValueError("Chaves de API não configuradas. Configure STORMGLASS_API_KEY e OPENWEATHER_API_KEY no ambiente")
+        api_keys = [
+            ("STORMGLASS_API_KEY", CONFIG["STORMGLASS_API_KEY"]),
+            ("STORMGLASS_API_KEY_ALT1", CONFIG["STORMGLASS_API_KEY_ALT1"]),
+            ("STORMGLASS_API_KEY_ALT2", CONFIG["STORMGLASS_API_KEY_ALT2"]),
+            ("STORMGLASS_API_KEY_ALT3", CONFIG["STORMGLASS_API_KEY_ALT3"]),
+            ("OPENWEATHER_API_KEY", CONFIG["OPENWEATHER_API_KEY"])
+        ]
+        
+        chaves_faltantes = [nome for nome, valor in api_keys if not valor]
+        if chaves_faltantes:
+            raise ValueError(f"Chaves de API não configuradas no ambiente: {', '.join(chaves_faltantes)}")
         
         # Criar diretório para relatórios, se não existir
         try:

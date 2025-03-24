@@ -27,6 +27,16 @@ jobs:
         with:
           python-version: '3.10'
           
+      - name: Verificar variáveis de ambiente
+        run: |
+          echo "Verificando variáveis de ambiente..."
+          if [ -z "$STORMGLASS_API_KEY" ]; then echo "STORMGLASS_API_KEY não configurada"; exit 1; fi
+          if [ -z "$STORMGLASS_API_KEY_ALT1" ]; then echo "STORMGLASS_API_KEY_ALT1 não configurada"; exit 1; fi
+          if [ -z "$STORMGLASS_API_KEY_ALT2" ]; then echo "STORMGLASS_API_KEY_ALT2 não configurada"; exit 1; fi
+          if [ -z "$STORMGLASS_API_KEY_ALT3" ]; then echo "STORMGLASS_API_KEY_ALT3 não configurada"; exit 1; fi
+          if [ -z "$OPENWEATHER_API_KEY" ]; then echo "OPENWEATHER_API_KEY não configurada"; exit 1; fi
+          echo "Todas as variáveis de ambiente estão configuradas"
+          
       - name: Verificar ambiente
         run: |
           python --version
