@@ -11,10 +11,6 @@ import json
 import requests
 from datetime import datetime, timedelta
 import logging
-from dotenv import load_dotenv
-
-# Carregar variáveis de ambiente
-load_dotenv()
 
 # Configurações
 CONFIG = {
@@ -23,11 +19,11 @@ CONFIG = {
     "LATITUDE": -23.9608,
     "LONGITUDE": -46.3336,
     "SITE_URL": "https://mestredosmares.com.br",
-    "STORMGLASS_API_KEY": os.getenv('STORMGLASS_API_KEY'),
-    "STORMGLASS_API_KEY_ALT1": os.getenv('STORMGLASS_API_KEY_ALT1'),
-    "STORMGLASS_API_KEY_ALT2": os.getenv('STORMGLASS_API_KEY_ALT2'),
-    "STORMGLASS_API_KEY_ALT3": os.getenv('STORMGLASS_API_KEY_ALT3'),
-    "OPENWEATHER_API_KEY": os.getenv('OPENWEATHER_API_KEY')
+    "STORMGLASS_API_KEY": os.environ.get('STORMGLASS_API_KEY'),
+    "STORMGLASS_API_KEY_ALT1": os.environ.get('STORMGLASS_API_KEY_ALT1'),
+    "STORMGLASS_API_KEY_ALT2": os.environ.get('STORMGLASS_API_KEY_ALT2'),
+    "STORMGLASS_API_KEY_ALT3": os.environ.get('STORMGLASS_API_KEY_ALT3'),
+    "OPENWEATHER_API_KEY": os.environ.get('OPENWEATHER_API_KEY')
 }
 
 # Configuração de logging
@@ -221,7 +217,7 @@ def main():
         
         # Verificar se as chaves de API estão configuradas
         if not CONFIG["STORMGLASS_API_KEY"] or not CONFIG["OPENWEATHER_API_KEY"]:
-            raise ValueError("Chaves de API não configuradas. Configure STORMGLASS_API_KEY e OPENWEATHER_API_KEY no arquivo .env")
+            raise ValueError("Chaves de API não configuradas. Configure STORMGLASS_API_KEY e OPENWEATHER_API_KEY no ambiente")
         
         # Criar diretório para relatórios, se não existir
         try:
