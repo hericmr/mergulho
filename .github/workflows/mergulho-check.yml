@@ -10,6 +10,14 @@ on:
 jobs:
   check-conditions:
     runs-on: ubuntu-latest
+    
+    env:
+      STORMGLASS_API_KEY: ${{ secrets.STORMGLASS_API_KEY }}
+      STORMGLASS_API_KEY_ALT1: ${{ secrets.STORMGLASS_API_KEY_ALT1 }}
+      STORMGLASS_API_KEY_ALT2: ${{ secrets.STORMGLASS_API_KEY_ALT2 }}
+      STORMGLASS_API_KEY_ALT3: ${{ secrets.STORMGLASS_API_KEY_ALT3 }}
+      OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
+
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
@@ -36,7 +44,12 @@ jobs:
         
       - name: Verificar relatórios gerados
         run: |
-          ls -la relatorios/ || echo "Diretório de relatórios não encontrado"
+          if [ ! -d "relatorios" ]; then
+            echo "Diretório de relatórios não encontrado!"
+            ls -la
+            exit 1
+          fi
+          ls -la relatorios/
           
       - name: Salvar relatórios como artefatos
         uses: actions/upload-artifact@v4
