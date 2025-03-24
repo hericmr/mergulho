@@ -10,6 +10,7 @@
 # - datetime
 # - logging
 
+# Dependências necessárias para consulta às APIs de condições de mergulho
 requests==2.31.0
 schedule==1.2.0
 python-dotenv==1.0.0 

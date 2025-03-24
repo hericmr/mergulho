@@ -2,15 +2,19 @@
 # -*- coding: utf-8 -*-
 """
 Verificador de Condições de Mergulho para GitHub Actions
-Script simplificado e robusto para execução no ambiente do GitHub Actions
+Script para consulta de condições reais via APIs
 """
 
 import os
 import sys
 import json
-import random
-from datetime import datetime
+import requests
+from datetime import datetime, timedelta
 import logging
+from dotenv import load_dotenv
+
+# Carregar variáveis de ambiente
+load_dotenv()
 
 # Configurações
 CONFIG = {
@@ -18,7 +22,9 @@ CONFIG = {
     "ESTADO": "SP",
     "LATITUDE": -23.9608,
     "LONGITUDE": -46.3336,
-    "SITE_URL": "https://mestredosmares.com.br"
+    "SITE_URL": "https://mestredosmares.com.br",
+    "STORMGLASS_API_KEY": os.getenv('STORMGLASS_API_KEY'),
+    "OPENWEATHER_API_KEY": os.getenv('OPENWEATHER_API_KEY')
 }
 
 # Configuração de logging
@@ -32,6 +38,115 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger('MergulhoCheck')
+
+def get_fase_lua(lat, lon, data):
+    """Consulta a fase lunar via StormGlass API"""
+    try:
+        url = "https://api.stormglass.io/v2/astronomy/point"
+        params = {
+            "lat": lat,
+            "lng": lon,
+            "start": data.strftime("%Y-%m-%d"),
+            "end": data.strftime("%Y-%m-%d")
+        }
+        headers = {"Authorization": CONFIG["STORMGLASS_API_KEY"]}
+        
+        response = requests.get(url, params=params, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+        
+        if data.get("hours"):
+            moon_phase = data["hours"][0]["moonPhase"]["noaa"]
+            return moon_phase
+        return None
+    except Exception as e:
+        logger.error(f"Erro ao consultar fase lunar: {e}")
+        return None
+
+def get_vento(lat, lon):
+    """Consulta velocidade do vento via OpenWeatherMap API"""
+    try:
+        url = "https://api.openweathermap.org/data/2.5/weather"
+        params = {
+            "lat": lat,
+            "lon": lon,
+            "appid": CONFIG["OPENWEATHER_API_KEY"],
+            "units": "metric"
+        }
+        
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+        
+        if "wind" in data:
+            return data["wind"]["speed"] * 3.6  # Converter m/s para km/h
+        return None
+    except Exception as e:
+        logger.error(f"Erro ao consultar vento: {e}")
+        return None
+
+def get_precipitacao(lat, lon):
+    """Consulta precipitação via OpenWeatherMap API"""
+    try:
+        url = "https://api.openweathermap.org/data/2.5/weather"
+        params = {
+            "lat": lat,
+            "lon": lon,
+            "appid": CONFIG["OPENWEATHER_API_KEY"],
+            "units": "metric"
+        }
+        
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+        
+        if "rain" in data:
+            return data["rain"].get("1h", 0)  # Precipitação na última hora
+        return 0
+    except Exception as e:
+        logger.error(f"Erro ao consultar precipitação: {e}")
+        return 0
+
+def get_mare(lat, lon, data):
+    """Consulta altura da maré via StormGlass API"""
+    try:
+        url = "https://api.stormglass.io/v2/tide/extremes/point"
+        params = {
+            "lat": lat,
+            "lng": lon,
+            "start": data.strftime("%Y-%m-%d"),
+            "end": data.strftime("%Y-%m-%d")
+        }
+        headers = {"Authorization": CONFIG["STORMGLASS_API_KEY"]}
+        
+        response = requests.get(url, params=params, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+        
+        if data.get("data"):
+            # Encontrar a maré mais próxima do horário atual
+            now = datetime.now()
+            mare_atual = min(data["data"], 
+                           key=lambda x: abs((datetime.fromisoformat(x["time"].replace("Z", "+00:00")) - now).total_seconds()))
+            return mare_atual["height"]
+        return None
+    except Exception as e:
+        logger.error(f"Erro ao consultar maré: {e}")
+        return None
+
+def get_estacao():
+    """Determina a estação do ano baseado na data atual"""
+    hoje = datetime.now()
+    mes = hoje.month
+    
+    if 12 <= mes <= 2:
+        return "Verão"
+    elif 3 <= mes <= 5:
+        return "Outono"
+    elif 6 <= mes <= 8:
+        return "Inverno"
+    else:
+        return "Primavera"
 
 def get_fase_lua_descricao(fase_lunar):
     """Retorna descrição detalhada da fase lunar"""
@@ -83,9 +198,9 @@ def main():
         logger.info(f"Python versão: {sys.version}")
         logger.info(f"Diretório atual: {os.getcwd()}")
         
-        # Verificar se Python está funcionando corretamente
-        logger.info("Testando funcionalidades básicas do Python")
-        assert 1 + 1 == 2, "Teste básico falhou"
+        # Verificar se as chaves de API estão configuradas
+        if not CONFIG["STORMGLASS_API_KEY"] or not CONFIG["OPENWEATHER_API_KEY"]:
+            raise ValueError("Chaves de API não configuradas. Configure STORMGLASS_API_KEY e OPENWEATHER_API_KEY no arquivo .env")
         
         # Criar diretório para relatórios, se não existir
         try:
@@ -95,47 +210,41 @@ def main():
             logger.info(f"Diretório 'relatorios' existe: {os.path.exists('relatorios')}")
         except Exception as e:
             logger.error(f"Erro ao criar diretório 'relatorios': {e}")
-            # Tentar criar no diretório atual
             with open('erro_diretorio.log', 'w') as f:
                 f.write(f"Erro ao criar diretório: {str(e)}\n")
             logger.info("Relatórios serão salvos no diretório atual")
         
-        # Simular verificação de condições
+        # Obter data/hora atual
         data_hora = datetime.now()
         logger.info(f"Verificando condições para: {data_hora}")
         
-        # Simular fase lunar (0-100, onde 0 é lua nova e 100 é lua cheia)
-        fase_lunar = random.randint(0, 100)
+        # Consultar condições reais via APIs
+        fase_lunar = get_fase_lua(CONFIG["LATITUDE"], CONFIG["LONGITUDE"], data_hora)
+        if fase_lunar is None:
+            raise ValueError("Não foi possível obter a fase lunar")
         nome_fase, descricao_fase = get_fase_lua_descricao(fase_lunar)
         logger.info(f"Fase lunar: {fase_lunar}/100")
         
-        # Simular vento (km/h)
-        vento = random.uniform(0, 30)
+        vento = get_vento(CONFIG["LATITUDE"], CONFIG["LONGITUDE"])
+        if vento is None:
+            raise ValueError("Não foi possível obter a velocidade do vento")
         descricao_vento, impacto_vento = get_vento_descricao(vento)
         logger.info(f"Velocidade do vento: {vento:.1f} km/h")
         
-        # Simular precipitação (mm)
-        precipitacao = random.uniform(0, 15)
+        precipitacao = get_precipitacao(CONFIG["LATITUDE"], CONFIG["LONGITUDE"])
         descricao_precip, impacto_precip = get_precipitacao_descricao(precipitacao)
         logger.info(f"Precipitação: {precipitacao:.1f} mm")
         
-        # Simular maré (m)
-        mare = random.uniform(0, 2)
+        mare = get_mare(CONFIG["LATITUDE"], CONFIG["LONGITUDE"], data_hora)
+        if mare is None:
+            raise ValueError("Não foi possível obter a altura da maré")
         descricao_mare, impacto_mare = get_mare_descricao(mare)
         logger.info(f"Altura da maré: {mare:.1f} m")
         
-        # Simular estação do ano
-        estacoes = ["Verão", "Outono", "Inverno", "Primavera"]
-        estacao = random.choice(estacoes)
+        estacao = get_estacao()
         logger.info(f"Estação: {estacao}")
         
         # Avaliar condições gerais
-        # Verificar condições de mergulho
-        # Condições ideais:
-        # - Vento < 15 km/h
-        # - Precipitação < 5 mm
-        # - Maré < 1.5 m
-        
         condicoes_ideais = (vento < 15 and precipitacao < 5 and mare < 1.5)
         
         if condicoes_ideais:
@@ -203,7 +312,6 @@ def main():
             logger.info(f"Relatório JSON salvo em: {json_path}")
         except Exception as e:
             logger.error(f"Erro ao salvar relatório JSON: {e}")
-            # Tentar salvar no diretório atual
             json_path = f'relatorio_{timestamp}.json'
             with open(json_path, 'w', encoding='utf-8') as f:
                 json.dump(relatorio, f, ensure_ascii=False, indent=4)
@@ -262,7 +370,6 @@ def main():
             logger.info(f"Relatório TXT salvo em: {txt_path}")
         except Exception as e:
             logger.error(f"Erro ao salvar relatório TXT: {e}")
-            # Tentar salvar no diretório atual
             txt_path = f'relatorio_{timestamp}.txt'
             with open(txt_path, 'w', encoding='utf-8') as f:
                 f.write(f"Verifique condições de mergulho atuais em {CONFIG['CIDADE']}\n\n")
