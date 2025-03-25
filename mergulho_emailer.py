@@ -142,6 +142,10 @@ def gerar_relatorio_texto(data_hora, fase_lunar, nome_fase, descricao_fase,
 🌐 Dados fornecidos por StormGlass API e OpenWeatherMap API
 👨‍💻 Desenvolvido pelo pirata Héric Moura
 🌍 Visite: {CONFIG['SITE_URL']}
+
+{'='*60}
+📧 Este é um email automático. Você receberá esta mensagem todos os dias às 7h da manhã.
+{'='*60}
 """
 
 def enviar_email(conteudo):
