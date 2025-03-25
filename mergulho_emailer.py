@@ -215,26 +215,41 @@ def main():
         # Condições regulares: vento < 20km/h, precipitação < 10mm, maré < 1.8m
         condicoes_regulares = (vento < 20 and precipitacao < 10 and mare < 1.8)
         
+        # Ajuste de pontuação baseado na estação
+        ajuste_estacao = 0
+        if estacao == "Verão":
+            ajuste_estacao = 10  # Bônus para verão
+        elif estacao == "Primavera":
+            ajuste_estacao = 5   # Bônus para primavera
+        elif estacao == "Inverno":
+            ajuste_estacao = -5  # Penalidade para inverno
+        else:  # Outono
+            ajuste_estacao = 0
+        
         if condicoes_ideais:
             avaliacao = "🌟 ÓTIMO"
-            pontuacao = 95
+            pontuacao = min(95 + ajuste_estacao, 100)  # Máximo de 100
             descricao = "Condições climáticas ideais para mergulho."
             recomendacao = "Condições climáticas estáveis e favoráveis para prática de mergulho."
         elif condicoes_boas:
             avaliacao = "👍 BOM"
-            pontuacao = 70
+            pontuacao = min(70 + ajuste_estacao, 95)  # Máximo de 95
             descricao = "Condições climáticas favoráveis para mergulho."
             recomendacao = "Condições climáticas aceitáveis para prática de mergulho."
         elif condicoes_regulares:
             avaliacao = "⚠️ REGULAR"
-            pontuacao = 50
+            pontuacao = min(50 + ajuste_estacao, 70)  # Máximo de 70
             descricao = "Condições climáticas moderadas para mergulho."
             recomendacao = "Condições climáticas instáveis. Recomenda-se cautela."
         else:
             avaliacao = "❌ NÃO RECOMENDADO"
-            pontuacao = 27
+            pontuacao = max(27 + ajuste_estacao, 27)  # Mínimo de 27
             descricao = "Condições climáticas desfavoráveis para mergulho."
             recomendacao = "Condições climáticas instáveis. Recomenda-se adiar a prática de mergulho."
+        
+        # Adiciona informação sobre o ajuste da estação na descrição
+        if ajuste_estacao != 0:
+            descricao += f" {'(Bônus de +' + str(ajuste_estacao) + ' pontos pela estação)' if ajuste_estacao > 0 else '(Penalidade de ' + str(abs(ajuste_estacao)) + ' pontos pela estação)'}"
         
         print("="*60)
         print(f"📊 AVALIAÇÃO: {avaliacao} ({pontuacao}/100)")
