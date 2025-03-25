@@ -203,31 +203,38 @@ def main():
         
         estacao = get_estacao()
         print(f"🌞 Estação: {estacao}")
-        print(f"   {'Condições climáticas ideais para mergulho.' if estacao in ['Verão', 'Primavera'] else 'Condições climáticas estáveis para mergulho.'}\n")
+        print(f"   {'Estação ideal para mergulho!' if estacao in ['Verão', 'Primavera'] else 'Condições aceitáveis para mergulho'}\n")
         
-        # Avaliar condições gerais
-        condicoes_ideais = (vento < 15 and precipitacao < 5 and mare < 1.5)
+        # Avaliar condições gerais com critérios mais rigorosos
+        # Condições ideais: vento < 10km/h, precipitação < 2mm, maré < 1.2m
+        condicoes_ideais = (vento < 10 and precipitacao < 2 and mare < 1.2)
+        
+        # Condições boas: vento < 15km/h, precipitação < 5mm, maré < 1.5m
+        condicoes_boas = (vento < 15 and precipitacao < 5 and mare < 1.5)
+        
+        # Condições regulares: vento < 20km/h, precipitação < 10mm, maré < 1.8m
+        condicoes_regulares = (vento < 20 and precipitacao < 10 and mare < 1.8)
         
         if condicoes_ideais:
             avaliacao = "🌟 ÓTIMO"
             pontuacao = 90
-            descricao = "Condições ambientais otimizadas para mergulho."
-            recomendacao = "Condições ideais para prática de mergulho. Visibilidade e estabilidade subaquática excelentes."
-        elif vento < 20 and precipitacao < 10 and mare < 1.8:
+            descricao = "Condições climáticas ideais para mergulho."
+            recomendacao = "Condições climáticas estáveis e favoráveis para prática de mergulho."
+        elif condicoes_boas:
             avaliacao = "👍 BOM"
             pontuacao = 70
-            descricao = "Condições ambientais favoráveis para mergulho."
-            recomendacao = "Condições estáveis para prática de mergulho. Monitore mudanças nas condições."
-        elif vento < 25 and precipitacao < 15 and mare < 2.0:
+            descricao = "Condições climáticas favoráveis para mergulho."
+            recomendacao = "Condições climáticas aceitáveis para prática de mergulho."
+        elif condicoes_regulares:
             avaliacao = "⚠️ REGULAR"
             pontuacao = 50
-            descricao = "Condições ambientais moderadas para mergulho."
-            recomendacao = "Condições aceitáveis para mergulho. Mantenha-se alerta às variações ambientais."
+            descricao = "Condições climáticas moderadas para mergulho."
+            recomendacao = "Condições climáticas instáveis. Recomenda-se cautela."
         else:
             avaliacao = "❌ NÃO RECOMENDADO"
             pontuacao = 27
-            descricao = "Condições ambientais críticas para mergulho."
-            recomendacao = "Condições desfavoráveis para prática de mergulho. Considere adiar a atividade."
+            descricao = "Condições climáticas desfavoráveis para mergulho."
+            recomendacao = "Condições climáticas instáveis. Recomenda-se adiar a prática de mergulho."
         
         print("="*60)
         print(f"📊 AVALIAÇÃO: {avaliacao} ({pontuacao}/100)")
