@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:image" content="/farol.png" />
+    <title>Condições para o Mergulho em Santos</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="src/ui/styles.css">
+</head>
+<body>
+    <div class="overlay">
+        <h1><strong>Mestre dos Mares - Santos/SP</strong></h1>
+        <p id="status">Verifique condições de mergulho atuais em Santos...</p>
+
+        <div id="mar">
+            <div class="container">
+                <!-- Componentes serão adicionados dinamicamente pelo JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="api-badges">
+                <span class="api-badge">StormGlass API</span>
+                <span class="api-badge">OpenWeatherMap API</span>
+            </div>
+            <div class="footer-text">
+                <p>Mestre dos Mares © 2024</p>
+                <p class="text-sm">Desenvolvido pelo pirata <a href="https://hericmr.github.io/me" target="_blank" class="text-blue-500 underline">Héric Moura</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="src/app.js" defer></script>
+</body>
+</html>

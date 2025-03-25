@@ -1,0 +1,447 @@
+/* Reset e estilos básicos */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-image: url('https://egov.santos.sp.gov.br/santosmapeada/css/img/cameras/cam0451/snap_c1.jpg?&t=1742678948629&t=1742678971955');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Container principal */
+.overlay {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    box-sizing: border-box;
+    background-color: rgba(0, 60, 255, 0.15); /* Leve sobreposição para melhorar legibilidade */
+}
+
+/* Estilos de tipografia */
+h1 {
+    font-size: 3.5rem;
+    color: rgba(96, 11, 11, 0.9);
+    text-align: center;
+    margin: 20px 0 10px;
+    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.1); /* Sombra para legibilidade */
+}
+
+p {
+    font-size: 1.5rem;
+    color: rgb(10, 1, 1);
+    text-align: center;
+    max-width: 800px;
+    margin: 10px auto;
+    line-height: 1.4;
+}
+
+/* Área do marítimo */
+#mar {
+    text-align: center;
+    color: rgb(0, 0, 0);
+    margin-top: 10px;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* Botões */
+button {
+    background-color: rgba(96, 11, 11, 0.9);
+    color: white;
+    padding: 12px 24px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+button:hover {
+    background-color: rgba(96, 11, 11, 1);
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+/* Rodapé */
+footer {
+    background-color: rgba(104, 0, 0, 0.7);
+    color: white;
+    text-align: center;
+    padding: 15px;
+    width: 100%;
+    margin-top: auto;
+}
+
+.footer-content {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.api-badges {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.api-badge {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.footer-text {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.footer-text p {
+    margin: 0;
+    font-size: 0.9em;
+}
+
+.footer-text a {
+    color: #4a9eff;
+    text-decoration: none;
+}
+
+.footer-text a:hover {
+    text-decoration: underline;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+    
+    p {
+        font-size: 1.2rem;
+    }
+    
+    button {
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    p {
+        font-size: 1rem;
+    }
+    
+    button {
+        width: 80%;
+        margin: 15px auto;
+    }
+}
+
+/* Estilos específicos do container atual */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Mantendo estilos específicos da aplicação atual */
+.hidden {
+    display: none;
+}
+
+/* Estilos para resultados e outros componentes específicos */
+#resultado {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.container {
+    max-width: 1000px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+header h1 {
+    color: #0066cc;
+}
+
+.controles {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.btn-principal {
+    background-color: rgba(96, 11, 11, 0.9);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.btn-principal:hover {
+    background-color: rgba(96, 11, 11, 1);
+}
+
+.status {
+    margin-top: 15px;
+    font-style: italic;
+    color: #666;
+}
+
+/* Estilos para os resultados */
+#resultado-mergulho {
+    margin-top: 30px;
+}
+
+.resultado-card {
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    background-color: white;
+}
+
+.resultado-excelente {
+    border-top: 5px solid #4CAF50;
+}
+
+.resultado-bom {
+    border-top: 5px solid #8BC34A;
+}
+
+.resultado-regular {
+    border-top: 5px solid #FFC107;
+}
+
+.resultado-ruim {
+    border-top: 5px solid #FF9800;
+}
+
+.resultado-pessimo {
+    border-top: 5px solid #F44336;
+}
+
+.resultado-cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.pontuacao-circulo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.recomendacao {
+    font-size: 1.1em;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.detalhes-fatores {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.fator-card {
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.favoravel {
+    background-color: rgba(76, 175, 80, 0.1);
+    border-left: 3px solid #4CAF50;
+}
+
+.desfavoravel {
+    background-color: rgba(255, 152, 0, 0.1);
+    border-left: 3px solid #FF9800;
+}
+
+/* Classe específica para outono */
+.fator-card.outono {
+    background-color: rgba(255, 235, 59, 0.1);
+    border-left: 3px solid #FFC107;
+}
+
+.fator-cabecalho {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.fator-cabecalho h3 {
+    margin: 0;
+    font-size: 1em;
+}
+
+.fator-valor {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.fator-descricao {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.fatores-negativos {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: rgba(244, 67, 54, 0.05);
+    border-radius: 6px;
+}
+
+.fatores-negativos h3 {
+    margin-top: 0;
+    font-size: 1em;
+}
+
+.fatores-negativos ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+/* Estilos para carregamento e erro */
+.carregando {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.spinner {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(0, 102, 204, 0.3);
+    border-radius: 50%;
+    border-top-color: #0066cc;
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.erro {
+    padding: 20px;
+    text-align: center;
+    background-color: rgba(244, 67, 54, 0.05);
+    border-radius: 6px;
+}
+
+.botao-retry {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+/* Estilos para os erros de API */
+.erros-api {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.erros-api h3 {
+    color: #856404;
+    margin-top: 0;
+    font-size: 1.1em;
+}
+
+.alerta-api {
+    color: #856404;
+}
+
+.alerta-api ul {
+    margin-bottom: 10px;
+}
+
+.alerta-api li {
+    margin-bottom: 5px;
+}
+
+.erro-detalhes {
+    margin-bottom: 20px;
+}
+
+.erro-api-info {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-size: 0.9em;
+}
+
+.erro-api-info ul {
+    margin-top: 5px;
+    padding-left: 20px;
+}
+
+.text-sm {
+    font-size: 0.8em;
+} 

@@ -1,0 +1,81 @@
+name: Verificação Diária de Condições de Mergulho
+
+on:
+  schedule:
+    # Executa todos os dias às 8:00 AM (UTC)
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+    # Permite execução manual através da interface do GitHub
+
+jobs:
+  check-conditions:
+    runs-on: ubuntu-latest
+    
+    env:
+      STORMGLASS_API_KEY: ${{ secrets.STORMGLASS_API_KEY_ALT3 }}
+      OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Verificar variáveis de ambiente
+        run: |
+          echo "Verificando variáveis de ambiente..."
+          if [ -z "$STORMGLASS_API_KEY" ]; then echo "STORMGLASS_API_KEY_ALT3 não configurada"; exit 1; fi
+          if [ -z "$OPENWEATHER_API_KEY" ]; then echo "OPENWEATHER_API_KEY não configurada"; exit 1; fi
+          echo "Todas as variáveis de ambiente estão configuradas"
+          
+      - name: Verificar ambiente
+        run: |
+          python --version
+          pwd
+          ls -la
+          
+      - name: Instalar dependências
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip list
+          
+      - name: Executar verificação de condições de mergulho
+        run: python mergulho_check_github.py
+        
+      - name: Verificar relatórios gerados
+        run: |
+          if [ ! -d "relatorios" ]; then
+            echo "Diretório de relatórios não encontrado!"
+            ls -la
+            exit 1
+          fi
+          ls -la relatorios/
+          
+      - name: Salvar relatórios como artefatos
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorios-mergulho
+          path: |
+            relatorios/
+            *.txt
+            *.log
+          retention-days: 7  # Mantém os relatórios por 7 dias
+          
+      # Opcional: Enviar relatório por email usando o GitHub Actions
+      # Para isso você precisaria configurar secrets no repositório
+      # - name: Enviar relatório por email
+      #   uses: dawidd6/action-send-mail@v3
+      #   with:
+      #     server_address: ${{ secrets.MAIL_SERVER }}
+      #     server_port: ${{ secrets.MAIL_PORT }}
+      #     username: ${{ secrets.MAIL_USERNAME }}
+      #     password: ${{ secrets.MAIL_PASSWORD }}
+      #     subject: Relatório de Condições de Mergulho
+      #     body: Relatório gerado automaticamente pelo GitHub Actions
+      #     to: ${{ secrets.MAIL_RECIPIENT }}
+      #     from: GitHub Actions
+      #     attachments: relatorios/relatorio_*.json 
