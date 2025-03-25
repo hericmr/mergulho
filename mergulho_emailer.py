@@ -131,20 +131,20 @@ def gerar_relatorio_texto(data_hora, fase_lunar, nome_fase, descricao_fase,
    {impacto_mare}
 
 🌞 Estação: {estacao}
-   {'Condições climáticas ideais para mergulho.' if estacao in ['Verão', 'Primavera'] else 'Condições climáticas estáveis para mergulho.'}
+   {'Estação ideal para mergulho!' if estacao in ['Verão', 'Primavera'] else 'Condições aceitáveis para mergulho'}
 
 {'='*60}
 📊 AVALIAÇÃO: {avaliacao} ({pontuacao}/100)
-💡 {descricao}
-🎯 {recomendacao}
+{descricao}
+Recomendação: {recomendacao}
 {'='*60}
 
 🌐 Dados fornecidos por StormGlass API e OpenWeatherMap API
-👨‍💻 Desenvolvido por Héric Moura
+👨‍💻 Desenvolvido pelo pirata Héric Moura
 🌍 Visite: {CONFIG['SITE_URL']}
 
 {'='*60}
-📧 Este é um relatório automático. Você receberá esta análise diariamente às 7h da manhã.
+📧 Este é um email automático. Você receberá esta mensagem todos os dias às 7h da manhã.
 {'='*60}
 """
 
