@@ -217,7 +217,7 @@ def main():
         
         if condicoes_ideais:
             avaliacao = "🌟 ÓTIMO"
-            pontuacao = 90
+            pontuacao = 95
             descricao = "Condições climáticas ideais para mergulho."
             recomendacao = "Condições climáticas estáveis e favoráveis para prática de mergulho."
         elif condicoes_boas:
