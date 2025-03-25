@@ -64,46 +64,46 @@ def get_estacao():
 def get_fase_lua_descricao(fase_lunar):
     """Retorna descrição detalhada da fase lunar"""
     if fase_lunar < 5:
-        return "Lua Nova", "Lua nova logo após o quarto crescente, normalmente não é boa, mas talvez a agua ainda esteja boa para mergulho"
+        return "Lua Nova", "Fase lunar crítica. Visibilidade subaquática comprometida. Recomenda-se cautela."
     elif fase_lunar < 25:
-        return "Lua Crescente", "Fase crescente, condições favoráveis para mergulho"
+        return "Lua Crescente", "Fase lunar favorável. Condições de visibilidade em melhoria."
     elif fase_lunar < 45:
-        return "Quarto Crescente", "Quarto crescente, boas condições para mergulho"
+        return "Quarto Crescente", "Fase lunar ideal. Condições de visibilidade otimizadas."
     elif fase_lunar < 55:
-        return "Lua Cheia", "Lua cheia, condições desfavoráveis para mergulho"
+        return "Lua Cheia", "Fase lunar crítica. Visibilidade subaquática severamente comprometida."
     elif fase_lunar < 75:
-        return "Quarto Minguante", "Quarto minguante, condições favoráveis para mergulho"
+        return "Quarto Minguante", "Fase lunar favorável. Condições de visibilidade estáveis."
     else:
-        return "Lua Minguante", "Lua minguante, boas condições para mergulho"
+        return "Lua Minguante", "Fase lunar adequada. Condições de visibilidade aceitáveis."
 
 def get_vento_descricao(vento):
     """Retorna descrição detalhada do vento"""
     if vento < 5:
-        return "Calmo", "Condições excelentes para mergulho"
+        return "Calmo", "Condições de vento ideais para mergulho. Superfície estável."
     elif vento < 15:
-        return "Fraco", "Vento fraco, condições excelentes para mergulho"
+        return "Fraco", "Condições de vento favoráveis. Leve ondulação na superfície."
     elif vento < 25:
-        return "Moderado", "Vento moderado, condições aceitáveis para mergulho"
+        return "Moderado", "Condições de vento aceitáveis. Ondulação moderada na superfície."
     else:
-        return "Forte", "Vento forte, condições desfavoráveis para mergulho"
+        return "Forte", "Condições de vento críticas. Ondulação severa na superfície."
 
 def get_precipitacao_descricao(precipitacao):
     """Retorna descrição detalhada da precipitação"""
     if precipitacao < 1:
-        return "Baixa", "Impacto: Baixo"
+        return "Baixa", "Impacto na visibilidade: Negligenciável"
     elif precipitacao < 5:
-        return "Média", "Impacto: Médio"
+        return "Média", "Impacto na visibilidade: Moderado"
     else:
-        return "Alta", "Impacto: Alto"
+        return "Alta", "Impacto na visibilidade: Severo"
 
 def get_mare_descricao(mare):
     """Retorna descrição detalhada da maré"""
     if mare < 0.8:
-        return "Baixa", "Condições favoráveis para mergulho"
+        return "Baixa", "Condições de maré favoráveis. Visibilidade subaquática otimizada."
     elif mare < 1.5:
-        return "Média", "Condições aceitáveis para mergulho"
+        return "Média", "Condições de maré estáveis. Visibilidade subaquática adequada."
     else:
-        return "Alta", "Condições desfavoráveis para mergulho"
+        return "Alta", "Condições de maré críticas. Visibilidade subaquática comprometida."
 
 def gerar_relatorio_texto(data_hora, fase_lunar, nome_fase, descricao_fase, 
                         vento, descricao_vento, impacto_vento,
@@ -131,7 +131,7 @@ def gerar_relatorio_texto(data_hora, fase_lunar, nome_fase, descricao_fase,
    {impacto_mare}
 
 🌞 Estação: {estacao}
-   {'Estação ideal para mergulho!' if estacao in ['Verão', 'Primavera'] else 'Condições aceitáveis para mergulho'}
+   {'Condições climáticas ideais para mergulho.' if estacao in ['Verão', 'Primavera'] else 'Condições climáticas estáveis para mergulho.'}
 
 {'='*60}
 📊 AVALIAÇÃO: {avaliacao} ({pontuacao}/100)
@@ -140,11 +140,11 @@ def gerar_relatorio_texto(data_hora, fase_lunar, nome_fase, descricao_fase,
 {'='*60}
 
 🌐 Dados fornecidos por StormGlass API e OpenWeatherMap API
-👨‍💻 Desenvolvido pelo pirata Héric Moura
+👨‍💻 Desenvolvido por Héric Moura
 🌍 Visite: {CONFIG['SITE_URL']}
 
 {'='*60}
-📧 Este é um email automático. Você receberá esta mensagem todos os dias às 7h da manhã.
+📧 Este é um relatório automático. Você receberá esta análise diariamente às 7h da manhã.
 {'='*60}
 """
 
@@ -203,7 +203,7 @@ def main():
         
         estacao = get_estacao()
         print(f"🌞 Estação: {estacao}")
-        print(f"   {'Estação ideal para mergulho!' if estacao in ['Verão', 'Primavera'] else 'Condições aceitáveis para mergulho'}\n")
+        print(f"   {'Condições climáticas ideais para mergulho.' if estacao in ['Verão', 'Primavera'] else 'Condições climáticas estáveis para mergulho.'}\n")
         
         # Avaliar condições gerais
         condicoes_ideais = (vento < 15 and precipitacao < 5 and mare < 1.5)
@@ -211,23 +211,23 @@ def main():
         if condicoes_ideais:
             avaliacao = "🌟 ÓTIMO"
             pontuacao = 90
-            descricao = "Condições ideais para mergulho hoje!"
-            recomendacao = "Aproveite! As condições estão ótimas para praticar mergulho."
+            descricao = "Condições ambientais otimizadas para mergulho."
+            recomendacao = "Condições ideais para prática de mergulho. Visibilidade e estabilidade subaquática excelentes."
         elif vento < 20 and precipitacao < 10 and mare < 1.8:
             avaliacao = "👍 BOM"
             pontuacao = 70
-            descricao = "Boas condições para mergulho hoje."
-            recomendacao = "Você pode mergulhar com relativa tranquilidade."
+            descricao = "Condições ambientais favoráveis para mergulho."
+            recomendacao = "Condições estáveis para prática de mergulho. Monitore mudanças nas condições."
         elif vento < 25 and precipitacao < 15 and mare < 2.0:
             avaliacao = "⚠️ REGULAR"
             pontuacao = 50
-            descricao = "Condições aceitáveis para mergulho hoje."
-            recomendacao = "Mergulhe com cautela e atenção às mudanças nas condições."
+            descricao = "Condições ambientais moderadas para mergulho."
+            recomendacao = "Condições aceitáveis para mergulho. Mantenha-se alerta às variações ambientais."
         else:
             avaliacao = "❌ NÃO RECOMENDADO"
             pontuacao = 27
-            descricao = "Condições não recomendadas para mergulho hoje."
-            recomendacao = "Não recomendado para mergulho hoje. Considere adiar."
+            descricao = "Condições ambientais críticas para mergulho."
+            recomendacao = "Condições desfavoráveis para prática de mergulho. Considere adiar a atividade."
         
         print("="*60)
         print(f"📊 AVALIAÇÃO: {avaliacao} ({pontuacao}/100)")
