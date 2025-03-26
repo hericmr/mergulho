@@ -123,19 +123,49 @@ def get_estacao():
         return "Primavera"
 
 def get_fase_lua_descricao(fase_lunar):
-    """Retorna descrição detalhada da fase lunar"""
+    """Retorna descrição detalhada da fase lunar com base na visibilidade subaquática e condições marinhas."""
     if fase_lunar < 5:
-        return "Lua Nova", "Fase lunar crítica. Visibilidade subaquática comprometida. Recomenda-se cautela."
+        return "Lua Nova", (
+            "Fase lunar crítica. Maré de sizígia causa forte variação do nível do mar, "
+            "aumentando a turbidez da água devido à resuspensão de sedimentos. "
+            "Maior movimentação de massas de água pode reduzir significativamente a visibilidade. "
+            "Recomenda-se evitar mergulhos em áreas costeiras rasas."
+        )
     elif fase_lunar < 25:
-        return "Lua Crescente", "Fase lunar favorável. Condições de visibilidade em melhoria."
+        return "Lua Crescente", (
+            "Fase lunar em transição favorável. A diminuição gradual da amplitude das marés "
+            "reduz a turbulência da água, melhorando progressivamente a visibilidade. "
+            "Condições tendem a melhorar à medida que se aproxima do Quarto Crescente. "
+            "Mergulhos mais profundos podem apresentar melhores condições."
+        )
     elif fase_lunar < 45:
-        return "Quarto Crescente", "Fase lunar ideal. Condições de visibilidade otimizadas."
+        return "Quarto Crescente", (
+            "Fase lunar ideal para mergulho. Maré de quadratura (neap tide) resulta em "
+            "menor amplitude de marés, reduzindo a turbidez e correntes marinhas. "
+            "Visibilidade subaquática atinge condições ótimas devido à menor resuspensão "
+            "de sedimentos. Período mais favorável para todos os tipos de mergulho."
+        )
     elif fase_lunar < 55:
-        return "Lua Cheia", "Fase lunar crítica. Visibilidade subaquática severamente comprometida."
+        return "Lua Cheia", (
+            "Fase lunar crítica. Maré de sizígia causa máxima variação do nível do mar, "
+            "gerando forte turbulência e correntes. Alta energia das marés aumenta "
+            "significativamente a turbidez da água. Maior atividade de espécies marinhas "
+            "pode afetar a visibilidade. Recomenda-se extrema cautela."
+        )
     elif fase_lunar < 75:
-        return "Quarto Minguante", "Fase lunar favorável. Condições de visibilidade estáveis."
+        return "Quarto Minguante", (
+            "Fase lunar favorável. Segunda maré de quadratura do ciclo lunar, "
+            "resultando em menor amplitude de marés. Correntes marinhas mais fracas "
+            "e menor turbidez da água. Boas condições para mergulho, especialmente "
+            "em áreas mais profundas."
+        )
     else:
-        return "Lua Minguante", "Fase lunar adequada. Condições de visibilidade aceitáveis."
+        return "Lua Minguante", (
+            "Fase lunar em transição. Amplitude das marés aumenta gradualmente, "
+            "podendo afetar a visibilidade em áreas rasas. Condições ainda aceitáveis "
+            "para mergulho, mas recomenda-se monitorar a turbidez da água e as "
+            "correntes locais."
+        )
 
 def get_vento_descricao(vento):
     """Retorna descrição detalhada do vento"""
