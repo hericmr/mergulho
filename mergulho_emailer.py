@@ -162,24 +162,26 @@ def get_fase_lua_descricao(fase_lunar):
         )
 
 def get_vento_descricao(vento):
-    """Retorna descrição detalhada do vento"""
+    """Retorna descrição detalhada do impacto do vento no mergulho livre."""
     if vento < 5:
-        return "Calmo", "Condições de vento ideais para mergulho. Superfície estável."
+        return "Calmo", "Condições ideais para mergulho. Superfície estável, facilitando relaxamento e descida."
     elif vento < 15:
-        return "Fraco", "Condições de vento favoráveis. Leve ondulação na superfície."
+        return "Fraco", "Condições favoráveis. Pequena ondulação na superfície, mínimo impacto no mergulho."
     elif vento < 25:
-        return "Moderado", "Condições de vento aceitáveis. Ondulação moderada na superfície."
+        return "Moderado", "Ondulação moderada na superfície. Pode ter correntezas e dificultar o relaxamento e a respiração antes da descida."
     else:
-        return "Forte", "Condições de vento críticas. Ondulação severa na superfície."
+        return "Forte", "Condições críticas. Ondulação severa e correntes superficiais fortes, tornando o acesso e a segurança no mergulho ruim."
+
 
 def get_precipitacao_descricao(precipitacao):
-    """Retorna descrição detalhada da precipitação"""
+    """Retorna descrição detalhada da precipitação e seu impacto na visibilidade subaquática."""
     if precipitacao < 1:
-        return "Baixa", "Impacto na visibilidade: Negligenciável"
+        return "Baixa", "Impacto na visibilidade: insignificante. A água permanece clara, com pouca ou nenhuma influência de material em suspensão."
     elif precipitacao < 5:
-        return "Média", "Impacto na visibilidade: Moderado"
+        return "Média", "Impacto na visibilidade: moderado. Possível aumento de sedimentos em suspensão devido ao escoamento superficial das chuvas."
     else:
-        return "Alta", "Impacto na visibilidade: Severo"
+        return "Alta", "Impacto na visibilidade: severo. Chuvas intensas aumentam a turbidez da água, devido ao carreamento de sedimentos dos rios locais, como o Rio Cubatão, prejudicando atividades subaquáticas."
+       return "Alta", "Impacto na visibilidade: Severo. As praias da orla de Santos têm alta concentração de material em suspensão, principalmente, devido ao aporte de material que recebem do rio Cubatão."
 
 def get_mare_descricao(mare):
     """Retorna descrição detalhada da maré"""
