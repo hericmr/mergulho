@@ -14,6 +14,7 @@ from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
+import random
 
 # Configurações
 CONFIG = {
@@ -32,8 +33,68 @@ CONFIG = {
 }
 
 def get_fase_lua(lat, lon, data):
-    """Simula a fase lunar para demonstração"""
-    return 30  # Simulando uma fase lunar
+    """Retorna a fase lunar atual usando a API do U.S. Naval Observatory"""
+    try:
+        # Data atual em formato YYYY-MM-DD para a API USNO
+        data_formatada = data.strftime('%Y-%m-%d')
+        
+        # Usar a API do U.S. Naval Observatory (USNO)
+        url = f"https://aa.usno.navy.mil/api/moon/phases/date?date={data_formatada}&nump=4"
+        
+        response = requests.get(url)
+        if response.ok:
+            dados = response.json()
+            
+            if dados and dados.get('phasedata'):
+                # Ordenar fases por proximidade da data atual
+                fases = sorted(dados['phasedata'], 
+                             key=lambda x: abs(datetime.strptime(f"{x['year']}-{x['month']}-{x['day']}", '%Y-%m-%d') - data))
+                
+                fase_proxima = fases[0]
+                data_fase = datetime.strptime(f"{fase_proxima['year']}-{fase_proxima['month']}-{fase_proxima['day']}", '%Y-%m-%d')
+                
+                # Calcular diferença em dias
+                dif_dias = abs((data - data_fase).days)
+                
+                # Converter fase para valor numérico
+                fase_map = {
+                    'New Moon': 0,
+                    'First Quarter': 25,
+                    'Full Moon': 50,
+                    'Last Quarter': 75
+                }
+                
+                fase_base = fase_map.get(fase_proxima['phase'], 0)
+                
+                # Ajustar fase baseado na diferença de dias
+                if dif_dias > 0:
+                    if fase_base == 0:  # Lua Nova
+                        return min(dif_dias * 3.5, 25)  # Crescente
+                    elif fase_base == 25:  # Quarto Crescente
+                        return min(25 + dif_dias * 3.5, 50)  # Crescente Gibosa
+                    elif fase_base == 50:  # Lua Cheia
+                        return min(50 + dif_dias * 3.5, 75)  # Minguante Gibosa
+                    else:  # Quarto Minguante
+                        return min(75 + dif_dias * 3.5, 100)  # Minguante
+                
+                return fase_base
+    except Exception as e:
+        print(f"Erro ao consultar fase da lua: {e}")
+    
+    # Fallback: usar OpenWeatherMap
+    try:
+        url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&exclude=minutely,hourly,alerts&appid={CONFIG['OPENWEATHER_API_KEY']}"
+        response = requests.get(url)
+        if response.ok:
+            dados = response.json()
+            if dados and dados.get('daily'):
+                fase = dados['daily'][0]['moon_phase']
+                return fase * 100  # Converter para escala 0-100
+    except Exception as e:
+        print(f"Erro no fallback OpenWeatherMap: {e}")
+    
+    # Se tudo falhar, retornar um valor simulado
+    return random.randint(0, 100)
 
 def get_vento(lat, lon):
     """Simula a velocidade do vento para demonstração"""
