@@ -181,7 +181,6 @@ def get_precipitacao_descricao(precipitacao):
         return "Média", "Impacto na visibilidade: moderado. Possível aumento de sedimentos em suspensão devido ao escoamento superficial das chuvas."
     else:
         return "Alta", "Impacto na visibilidade: severo. Chuvas intensas aumentam a turbidez da água, devido ao carreamento de sedimentos dos rios locais, como o Rio Cubatão, prejudicando atividades subaquáticas."
-       return "Alta", "Impacto na visibilidade: Severo. As praias da orla de Santos têm alta concentração de material em suspensão, principalmente, devido ao aporte de material que recebem do rio Cubatão."
 
 def get_mare_descricao(mare):
     """Retorna descrição detalhada da maré"""

@@ -1,15 +1,1 @@
-# Arquivo requirements.txt para o projeto Mergulho
-# O script atual usa apenas bibliotecas padrão do Python, portanto não há dependências externas.
-# Este arquivo existe para satisfazer o workflow do GitHub Actions.
-#
-# Bibliotecas padrão utilizadas:
-# - os
-# - sys
-# - json
-# - random
-# - datetime
-# - logging
-
-# Dependências necessárias para consulta às APIs de condições de mergulho
-requests==2.31.0
-schedule==1.2.0 
+ 
