@@ -29,72 +29,58 @@ CONFIG = {
     "SMTP_PORT": 587,
     "EMAIL_USER": os.getenv("EMAIL_USER", "heric.m.r@gmail.com"),
     "EMAIL_PASS": os.getenv("EMAIL_PASS", "khuk mkoy jyvz vajk"),
-    "EMAIL_DESTINATARIOS": os.getenv("EMAIL_DESTINATARIOS", "heric.m.r@gmail.com").split(",")
+    "EMAIL_DESTINATARIOS": os.getenv("EMAIL_DESTINATARIOS", "heric.m.r@gmail.com, ").split(",")
 }
 
+FASES_LUA_2025 = [
+    {"data": "2025-01-06 20:56", "fase": "Quarto Crescente"}, {"data": "2025-01-13 19:26", "fase": "Lua Cheia"}, {"data": "2025-01-21 17:30", "fase": "Quarto Minguante"}, {"data": "2025-01-29 09:35", "fase": "Lua Nova"},
+    {"data": "2025-02-05 05:02", "fase": "Quarto Crescente"}, {"data": "2025-02-12 10:53", "fase": "Lua Cheia"}, {"data": "2025-02-20 14:32", "fase": "Quarto Minguante"}, {"data": "2025-02-27 21:44", "fase": "Lua Nova"},
+    {"data": "2025-03-06 13:31", "fase": "Quarto Crescente"}, {"data": "2025-03-14 03:54", "fase": "Lua Cheia"}, {"data": "2025-03-22 08:29", "fase": "Quarto Minguante"}, {"data": "2025-03-29 07:57", "fase": "Lua Nova"},
+    {"data": "2025-04-04 23:14", "fase": "Quarto Crescente"}, {"data": "2025-04-12 21:22", "fase": "Lua Cheia"}, {"data": "2025-04-20 22:35", "fase": "Quarto Minguante"}, {"data": "2025-04-27 16:31", "fase": "Lua Nova"},
+    {"data": "2025-05-04 10:51", "fase": "Quarto Crescente"}, {"data": "2025-05-12 13:55", "fase": "Lua Cheia"}, {"data": "2025-05-20 08:58", "fase": "Quarto Minguante"}, {"data": "2025-05-27 00:02", "fase": "Lua Nova"},
+    {"data": "2025-06-03 00:40", "fase": "Quarto Crescente"}, {"data": "2025-06-11 04:43", "fase": "Lua Cheia"}, {"data": "2025-06-18 16:19", "fase": "Quarto Minguante"}, {"data": "2025-06-25 07:31", "fase": "Lua Nova"},
+    {"data": "2025-07-02 16:30", "fase": "Quarto Crescente"}, {"data": "2025-07-10 17:36", "fase": "Lua Cheia"}, {"data": "2025-07-17 21:37", "fase": "Quarto Minguante"}, {"data": "2025-07-24 16:11", "fase": "Lua Nova"},
+    {"data": "2025-08-01 09:41", "fase": "Quarto Crescente"}, {"data": "2025-08-09 04:55", "fase": "Lua Cheia"}, {"data": "2025-08-16 02:12", "fase": "Quarto Minguante"}, {"data": "2025-08-23 03:06", "fase": "Lua Nova"},
+    {"data": "2025-08-31 03:25", "fase": "Quarto Crescente"}, {"data": "2025-09-07 15:08", "fase": "Lua Cheia"}, {"data": "2025-09-14 07:32", "fase": "Quarto Minguante"}, {"data": "2025-09-21 16:54", "fase": "Lua Nova"},
+    {"data": "2025-09-29 20:53", "fase": "Quarto Crescente"}, {"data": "2025-10-07 00:47", "fase": "Lua Cheia"}, {"data": "2025-10-13 15:12", "fase": "Quarto Minguante"}, {"data": "2025-10-21 09:25", "fase": "Lua Nova"},
+    {"data": "2025-10-29 13:20", "fase": "Quarto Crescente"}, {"data": "2025-11-05 10:19", "fase": "Lua Cheia"}, {"data": "2025-11-12 02:28", "fase": "Quarto Minguante"}, {"data": "2025-11-20 03:47", "fase": "Lua Nova"},
+    {"data": "2025-11-28 03:58", "fase": "Quarto Crescente"}, {"data": "2025-12-04 20:14", "fase": "Lua Cheia"}, {"data": "2025-12-11 17:51", "fase": "Quarto Minguante"}, {"data": "2025-12-19 22:43", "fase": "Lua Nova"},
+    {"data": "2025-12-27 16:09", "fase": "Quarto Crescente"}
+]
+
 def get_fase_lua(lat, lon, data):
-    """Retorna a fase lunar atual usando a API do U.S. Naval Observatory"""
+    """Retorna a fase lunar atual baseada na tabela IAG/USP (2025)"""
     try:
-        # Data atual em formato YYYY-MM-DD para a API USNO
-        data_formatada = data.strftime('%Y-%m-%d')
+        # Encontrar a fase mais próxima na tabela
+        melhor_fase = None
+        menor_diferenca = float('inf')
         
-        # Usar a API do U.S. Naval Observatory (USNO)
-        url = f"https://aa.usno.navy.mil/api/moon/phases/date?date={data_formatada}&nump=4"
-        
-        response = requests.get(url)
-        if response.ok:
-            dados = response.json()
+        for evento in FASES_LUA_2025:
+            data_evento = datetime.strptime(evento["data"], "%Y-%m-%d %H:%M")
+            # Ajustando ano se necessário (embora a tabela seja 2025, vamos garantir comparação correta)
+            # Como a tabela é fixa 2025, assumimos uso em 2025/proximidades.
             
-            if dados and dados.get('phasedata'):
-                # Ordenar fases por proximidade da data atual
-                fases = sorted(dados['phasedata'], 
-                             key=lambda x: abs(datetime.strptime(f"{x['year']}-{x['month']}-{x['day']}", '%Y-%m-%d') - data))
-                
-                fase_proxima = fases[0]
-                data_fase = datetime.strptime(f"{fase_proxima['year']}-{fase_proxima['month']}-{fase_proxima['day']}", '%Y-%m-%d')
-                
-                # Calcular diferença em dias
-                dif_dias = abs((data - data_fase).days)
-                
-                # Converter fase para valor numérico
-                fase_map = {
-                    'New Moon': 0,
-                    'First Quarter': 25,
-                    'Full Moon': 50,
-                    'Last Quarter': 75
-                }
-                
-                fase_base = fase_map.get(fase_proxima['phase'], 0)
-                
-                # Ajustar fase baseado na diferença de dias
-                if dif_dias > 0:
-                    if fase_base == 0:  # Lua Nova
-                        return min(dif_dias * 3.5, 25)  # Crescente
-                    elif fase_base == 25:  # Quarto Crescente
-                        return min(25 + dif_dias * 3.5, 50)  # Crescente Gibosa
-                    elif fase_base == 50:  # Lua Cheia
-                        return min(50 + dif_dias * 3.5, 75)  # Minguante Gibosa
-                    else:  # Quarto Minguante
-                        return min(75 + dif_dias * 3.5, 100)  # Minguante
-                
-                return fase_base
+            diferenca = abs((data - data_evento).total_seconds())
+            
+            if diferenca < menor_diferenca:
+                menor_diferenca = diferenca
+                melhor_fase = evento
+        
+        if melhor_fase:
+            fase_map = {
+                'Lua Nova': 0,
+                'Quarto Crescente': 25,
+                'Lua Cheia': 50,
+                'Quarto Minguante': 75
+            }
+            return fase_map.get(melhor_fase["fase"], 0)
+
     except Exception as e:
-        print(f"Erro ao consultar fase da lua: {e}")
+        print(f"Erro ao consultar tabela de fases da lua: {e}")
     
-    # Fallback: usar OpenWeatherMap
-    try:
-        url = f"https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&exclude=minutely,hourly,alerts&appid={CONFIG['OPENWEATHER_API_KEY']}"
-        response = requests.get(url)
-        if response.ok:
-            dados = response.json()
-            if dados and dados.get('daily'):
-                fase = dados['daily'][0]['moon_phase']
-                return fase * 100  # Converter para escala 0-100
-    except Exception as e:
-        print(f"Erro no fallback OpenWeatherMap: {e}")
-    
-    # Se tudo falhar, retornar um valor simulado
-    return random.randint(0, 100)
+    # Fallback original removido para garantir consistência, 
+    # mas manteríamos aqui se fosse necessário. Retornando 0 (Nova) em caso de erro catastrófico.
+    return 0
 
 def get_vento(lat, lon):
     """Simula a velocidade do vento para demonstração"""
@@ -113,7 +99,7 @@ def get_estacao():
     hoje = datetime.now()
     mes = hoje.month
     
-    if 12 <= mes <= 2:
+    if mes in [12, 1, 2]:
         return "Verão"
     elif 3 <= mes <= 5:
         return "Outono"
@@ -124,42 +110,33 @@ def get_estacao():
 
 def get_fase_lua_descricao(fase_lunar):
     """Retorna descrição detalhada da fase lunar com base na visibilidade subaquática."""
-    if fase_lunar < 5:
+    if fase_lunar == 0:
         return "Lua Nova", (
             "Fase lunar crítica. Visibilidade subaquática comprometida devido à maior variação da maré de sizígia, "
             "que intensifica a resuspensão de sedimentos e aumenta a turbidez. A amplitude máxima das marés "
             "nesta fase pode exceder 2m, gerando correntes de até 2.5 nós. (Yang et al., 2020; Kumar et al., 2019)"
         )
-    elif fase_lunar < 25:
-        return "Lua Crescente", (
-            "Fase lunar favorável. Redução progressiva da amplitude das marés (1.2-1.5m) resulta em menor turbulência. "
-            "Estudos indicam melhoria gradual na penetração de luz e redução de 40-60% na resuspensão de sedimentos "
-            "em comparação com a fase nova. (Wilson et al., 2018)"
-        )
-    elif fase_lunar < 45:
+    elif fase_lunar == 25:
         return "Quarto Crescente", (
             "Fase lunar ideal. Durante marés de quadratura (neap tides), a baixa variação da maré (0.8-1.0m) "
             "minimiza a resuspensão de sedimentos, otimizando a visibilidade subaquática. Correntes reduzidas "
             "a 0.5-1.0 nós favorecem condições de mergulho. (Yang et al., 2020; Thompson, 2021)"
         )
-    elif fase_lunar < 55:
+    elif fase_lunar == 50:
         return "Lua Cheia", (
             "Fase lunar crítica. Visibilidade subaquática severamente comprometida devido à maré de sizígia. "
             "Amplitude máxima das marés (1.8-2.2m) gera turbulência significativa e correntes de até 3.0 nós. "
             "Aumento de 80% na turbidez em comparação com quadratura. (Yang et al., 2020; Martinez et al., 2022)"
         )
-    elif fase_lunar < 75:
+    elif fase_lunar == 75:
         return "Quarto Minguante", (
             "Fase lunar favorável. Segunda maré de quadratura do ciclo resulta em amplitude reduzida (0.9-1.1m). "
             "Estudos mostram diminuição de 65% na turbidez em comparação com lua cheia, com correntes entre "
             "0.7-1.2 nós. (Kumar et al., 2019; Wilson et al., 2018)"
         )
     else:
-        return "Lua Minguante", (
-            "Fase lunar adequada. Transição para sizígia com aumento gradual da amplitude (1.3-1.6m). "
-            "Dados indicam turbidez moderada e correntes de 1.0-1.5 nós. Visibilidade subaquática "
-            "ainda mantém 40% melhor que em lua nova. (Thompson, 2021)"
-        )
+        # Fallback genérico para valores intermediários se houver
+        return "Fase Intermediária", "Condições variáveis."
 
 def get_vento_descricao(vento):
     """Retorna descrição detalhada do impacto do vento no mergulho livre."""
@@ -226,6 +203,7 @@ Recomendação: {recomendacao}
 {'='*60}
 
 🌐 Dados fornecidos por StormGlass API e OpenWeatherMap API
+🌑 Fonte das Fases da Lua: Departamento de Astronomia do Instituto de Astronomia, Geofísica e Ciências Atmosféricas
 👨‍💻 Desenvolvido pelo pirata Héric Moura
 🌍 Visite: {CONFIG['SITE_URL']}
 
