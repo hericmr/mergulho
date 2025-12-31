@@ -15,7 +15,11 @@ export const CONFIG = {
     LONGITUDE: -46.3336,
     CACHE_EXPIRACAO: 3600000, // 1 hora em milissegundos
     TABUA_MARE_API_URL: "http://localhost:3330",
-    SANTOS_HARBOR_ID: 57
+    SANTOS_HARBOR_ID: 57,
+    // Determina a URL base para ativos (importante para GitHub Pages)
+    PUBLIC_URL: window.location.hostname.includes('github.io')
+        ? `/${window.location.pathname.split('/')[1]}`
+        : ''
 };
 
 /**

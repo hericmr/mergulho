@@ -269,9 +269,11 @@ function renderTideChart(data) {
     const canvas = document.getElementById('tideChart');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    // Destruir instância anterior se existir
-    if (tideChartInstance) {
-        tideChartInstance.destroy();
+
+    // Destruir instância anterior de forma robusta
+    const existingChart = Chart.getChart('tideChart');
+    if (existingChart) {
+        existingChart.destroy();
     }
 
     tideChartInstance = new Chart(ctx, {
