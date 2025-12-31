@@ -34,11 +34,19 @@ function interpolateTideAt(min, points) {
  */
 export async function checarMare() {
     try {
-        const publicUrl = CONFIG.PUBLIC_URL || '';
-        const jsonPath = `${publicUrl}/public/data/json/tabela.json`.replace(/\/+/g, '/');
+        // Adicionando um cache buster para garantir que pegamos a versão mais recente
+        const cacheBuster = `v=${new Date().getTime()}`;
+        const relativePath = `public/data/json/tabela.json?${cacheBuster}`;
 
-        console.log(`Buscando marés em: ${jsonPath}`);
-        const response = await fetch(jsonPath);
+        console.log(`Buscando marés em: ${relativePath}`);
+        let response = await fetch(relativePath);
+
+        // Se falhar o relativo (status 404), tenta com PUBLIC_URL
+        if (!response.ok && CONFIG.PUBLIC_URL) {
+            const absolutePath = `${CONFIG.PUBLIC_URL}/public/data/json/tabela.json?${cacheBuster}`.replace(/\/+/g, '/');
+            console.log(`Relativo falhou, tentando absoluto: ${absolutePath}`);
+            response = await fetch(absolutePath);
+        }
 
         if (!response.ok) {
             throw new Error(`Falha ao carregar dados de maré: ${response.status} ${response.statusText}`);
