@@ -169,6 +169,15 @@ export async function checarMare() {
         };
     } catch (err) {
         console.error('Erro no módulo de marés:', err);
-        return { error: err.message, favoravel: false };
+        return {
+            error: err.message,
+            favoravel: false,
+            pontuacao: 0,
+            classificacao: 'Erro',
+            detalhe: 'Não foi possível obter dados de maré.',
+            waveData: [],
+            dayEntries: [],
+            amplitude: 0
+        };
     }
 }

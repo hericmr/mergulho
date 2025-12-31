@@ -66,14 +66,15 @@ export function exibirResultado(resultadoAvaliacao) {
     );
 
     // Maré
-    const mareRaw = resultadoAvaliacao.fatoresAnalisados.mare.raw;
-    const mareStatus = mareRaw.pontuacao >= 3 ? 'favoravel' : (mareRaw.pontuacao === 2 ? 'favoravel' : (mareRaw.pontuacao === 1 ? 'regular' : 'ruim'));
+    const mareRaw = resultadoAvaliacao.fatoresAnalisados.mare.raw || {};
+    const hasTideData = mareRaw.amplitude !== undefined;
+    const mareStatus = hasTideData ? (mareRaw.pontuacao >= 3 ? 'favoravel' : (mareRaw.pontuacao === 2 ? 'favoravel' : (mareRaw.pontuacao === 1 ? 'regular' : 'ruim'))) : 'desfavoravel';
 
     const mareElemento = criarCardFator(
-        `Maré (${mareRaw.classificacao})`,
-        resultadoAvaliacao.fatoresAnalisados.mare.estado,
+        `Maré (${mareRaw.classificacao || 'Erro'})`,
+        resultadoAvaliacao.fatoresAnalisados.mare.estado || 'Indisponível',
         resultadoAvaliacao.fatoresAnalisados.mare.favoravel,
-        `${mareRaw.detalhe} (Amplitude: ${mareRaw.amplitude.toFixed(2)}m)`,
+        hasTideData ? `${mareRaw.detalhe} (Amplitude: ${mareRaw.amplitude.toFixed(2)}m)` : (mareRaw.error || 'Dados de maré não disponíveis'),
         mareStatus
     );
 
@@ -109,8 +110,8 @@ export function exibirResultado(resultadoAvaliacao) {
 
     // Renderizar o gráfico após adicionar ao DOM
     setTimeout(() => {
-        const mareData = resultadoAvaliacao.fatoresAnalisados.mare.raw; // Precisamos passar os dados brutos
-        if (mareData) {
+        const mareData = resultadoAvaliacao.fatoresAnalisados.mare.raw;
+        if (mareData && mareData.waveData) {
             renderTideChart(mareData);
         }
     }, 100);
