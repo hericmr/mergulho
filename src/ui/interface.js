@@ -1,6 +1,7 @@
 /**
  * Módulo para interação com a interface do usuário
  */
+let tideChartInstance = null;
 
 /**
  * Exibe o resultado da avaliação na interface
@@ -268,8 +269,12 @@ function renderTideChart(data) {
     const canvas = document.getElementById('tideChart');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    // Destruir instância anterior se existir
+    if (tideChartInstance) {
+        tideChartInstance.destroy();
+    }
 
-    new Chart(ctx, {
+    tideChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
             datasets: [

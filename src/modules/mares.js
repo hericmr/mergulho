@@ -34,8 +34,37 @@ function interpolateTideAt(min, points) {
  */
 export async function checarMare() {
     try {
-        const response = await fetch('public/data/json/tabela.json');
-        const tideData = await response.json();
+        // Tentar múltiplos caminhos para garantir compatibilidade GitHub Pages / Local
+        const paths = [
+            'public/data/json/tabela.json',
+            './public/data/json/tabela.json',
+            '/mergulho/public/data/json/tabela.json'
+        ];
+
+        let response;
+        let lastError;
+
+        for (const path of paths) {
+            try {
+                console.log(`Tentando carregar marés de: ${path}`);
+                response = await fetch(path);
+                if (response.ok) break;
+            } catch (e) {
+                lastError = e;
+            }
+        }
+
+        if (!response || !response.ok) {
+            throw new Error(`Falha ao carregar dados de maré: ${response?.statusText || 'Erro de conexão'}`);
+        }
+
+        const text = await response.text();
+        if (!text.trim().startsWith('[')) {
+            console.error('Resposta não é um JSON de marés:', text.substring(0, 100));
+            throw new Error('Formato de dados de maré inválido (não é JSON)');
+        }
+
+        const tideData = JSON.parse(text);
 
         const agora = new Date();
         const y = agora.getFullYear();
