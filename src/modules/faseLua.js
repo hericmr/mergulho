@@ -84,53 +84,53 @@ function calcularIluminacao(faseLuaNumero) {
 export function avaliarFaseParaMergulho(faseLua, iluminacao) {
     const faseNormalizada = faseLua.toLowerCase();
 
-    // Quarto Crescente é a melhor fase para mergulho (mais visibilidade sem excesso de luminosidade)
+    // Quarto Crescente é a melhor fase para mergulho
     if (faseNormalizada.includes('quarto crescente') ||
         faseNormalizada.includes('first quarter')) {
         return {
             favoravel: true,
             pontuacao: 3,
-            motivo: 'Quarto crescente é ideal para mergulho com boa visibilidade em Santos'
+            motivo: 'Quarto crescente é ideal para mergulho com boa visibilidade em Santos porque nessa de maré de quadratura (morta). A baixa amplitude das marés reduz correntes e suspensão de sedimentos, proporcionando visibilidade cristalina em Santos.'
         };
     }
 
-    // Fases próximas ao quarto crescente - boas para mergulho
+    // Fases próximas ao quarto crescente
     if (faseNormalizada.includes('crescente') && !faseNormalizada.includes('gibosa')) {
         return {
             favoravel: true,
             pontuacao: 2,
-            motivo: 'Fase crescente próxima ao quarto crescente - condições favoráveis'
+            motivo: 'Fase de transição com marés moderadas. Condições favoráveis com tendência à melhoria da visibilidade.'
         };
     }
 
-    // Lua cheia - boa iluminação mas pode afetar comportamento marinho
+    // Lua cheia
     if (faseNormalizada.includes('lua cheia') ||
         faseNormalizada.includes('full moon')) {
         return {
             favoravel: false,
             pontuacao: 1,
-            motivo: 'Só é boa se as demais condições estão favoráveis'
+            motivo: 'Marés de sizígia. A alta luminosidade é interessante, mas a grande variação de maré pode elevar a turbidez da água.'
         };
     }
 
-    // Lua nova - baixa visibilidade
+    // Lua nova
     if (faseNormalizada.includes('lua nova') ||
         faseNormalizada.includes('new moon')) {
         return {
             favoravel: false,
             pontuacao: 0,
-            motivo: 'Lua nova logo após o quarto crescente, normalmente não é boa, mas talvez a agua ainda esteja boa para mergulho'
+            motivo: 'Marés de sizígia. Ausência de luminosidade natural e grande variação de maré, o que costuma reduzir a visibilidade subaquática.'
         };
     }
 
-    // Fases minguantes - não ideais para mergulho
+    // Fases minguantes
     if (faseNormalizada.includes('minguante') ||
         faseNormalizada.includes('last quarter') ||
         faseNormalizada.includes('waning')) {
         return {
             favoravel: false,
             pontuacao: 0,
-            motivo: 'Fases minguante, pouco favorável para mergulho'
+            motivo: 'Condições de visibilidade instáveis devido ao movimento residual das grandes marés de sizígia.'
         };
     }
 
@@ -165,7 +165,7 @@ const FASES_LUA_2025 = [
  * @returns {Promise<object>} Dados da fase lunar com avaliação
  */
 export async function checarFaseDaLua() {
-    const chaveCache = 'faseLua_2025'; // Novo cache para forçar atualização
+    const chaveCache = 'faseLua_v_final_v2'; // Refresh for exact user string
     const dadosCache = obterCache(chaveCache);
 
     if (dadosCache) {

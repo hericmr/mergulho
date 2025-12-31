@@ -2,153 +2,173 @@
  * Módulo para análise de marés e seu impacto no mergulho
  */
 import { CONFIG } from '../config.js';
-import { buscarDadosAPI } from '../api/cliente.js';
-import { obterCache, definirCache } from '../utils/cache.js';
 
-/**
- * Analisa e interpreta dados de maré para recomendações de mergulho
- * @param {Array<string>} mareAlta - Array com horários de maré alta
- * @param {Array<string>} mareBaixa - Array com horários de maré baixa
- * @returns {object} Análise das próximas marés e condições para mergulho
- */
-export function analisarProximasMares(mareAlta, mareBaixa) {
-    const agora = new Date();
-    const proximasHoras = new Date(agora.getTime() + 12 * 60 * 60 * 1000); // 12 horas à frente
+// Cosine interpolation between two points (t1, h1) and (t2, h2)
+function interpolate(t, t1, h1, t2, h2) {
+    const mu = (t - t1) / (t2 - t1);
+    const mu2 = (1 - Math.cos(mu * Math.PI)) / 2;
+    return h1 * (1 - mu2) + h2 * mu2;
+}
 
-    // Filtrar apenas marés nas próximas 12 horas
-    const proximaMareAlta = mareAlta
-        .map(mare => ({ time: new Date(mare.time), height: mare.height }))
-        .filter(mare => mare.time > agora && mare.time < proximasHoras)
-        .sort((a, b) => a.time - b.time)[0];
+function timeToMinutes(timeStr) {
+    const [h, m] = timeStr.split(':').map(Number);
+    return h * 60 + m;
+}
 
-    const proximaMareBaixa = mareBaixa
-        .map(mare => ({ time: new Date(mare.time), height: mare.height }))
-        .filter(mare => mare.time > agora && mare.time < proximasHoras)
-        .sort((a, b) => a.time - b.time)[0];
-
-    // Determinar qual é a próxima maré (alta ou baixa)
-    let proximaMare = null;
-    let alturaProximaMare = null;
-    let tipoProximaMare = null;
-
-    if (proximaMareAlta && proximaMareBaixa) {
-        if (proximaMareAlta.time < proximaMareBaixa.time) {
-            proximaMare = proximaMareAlta.time;
-            alturaProximaMare = proximaMareAlta.height;
-            tipoProximaMare = 'alta';
-        } else {
-            proximaMare = proximaMareBaixa.time;
-            alturaProximaMare = proximaMareBaixa.height;
-            tipoProximaMare = 'baixa';
+function interpolateTideAt(min, points) {
+    let p1 = points[0];
+    let p2 = points[points.length - 1];
+    for (let i = 0; i < points.length - 1; i++) {
+        if (min >= points[i].minutes && min <= points[i + 1].minutes) {
+            p1 = points[i];
+            p2 = points[i + 1];
+            break;
         }
-    } else if (proximaMareAlta) {
-        proximaMare = proximaMareAlta.time;
-        alturaProximaMare = proximaMareAlta.height;
-        tipoProximaMare = 'alta';
-    } else if (proximaMareBaixa) {
-        proximaMare = proximaMareBaixa.time;
-        alturaProximaMare = proximaMareBaixa.height;
-        tipoProximaMare = 'baixa';
     }
-
-    // Análise para mergulho baseada nas marés
-    let condicaoMergulho = 'indefinida';
-    let descricao = '';
-
-    if (proximaMare) {
-        const horasAteProximaMare = (proximaMare - agora) / (1000 * 60 * 60);
-
-        if (tipoProximaMare === 'baixa') {
-            if (horasAteProximaMare < 1) {
-                condicaoMergulho = 'ideal';
-                descricao = 'Maré baixa iminente, condições ideais para mergulho em recifes costeiros';
-            } else if (horasAteProximaMare < 3) {
-                condicaoMergulho = 'boa';
-                descricao = 'Aproximando-se da maré baixa, boas condições para mergulho';
-            } else {
-                condicaoMergulho = 'razoável';
-                descricao = 'Maré baixa em algumas horas, condições razoáveis';
-            }
-        } else {
-            if (horasAteProximaMare < 1) {
-                condicaoMergulho = 'boa';
-                descricao = 'Maré alta iminente, boas condições para profundidade';
-            } else if (horasAteProximaMare < 3) {
-                condicaoMergulho = 'razoável';
-                descricao = 'Aproximando-se da maré alta, condições razoáveis';
-            } else {
-                condicaoMergulho = 'razoável';
-                descricao = 'Maré alta em algumas horas, condições razoáveis';
-            }
-        }
-    } else {
-        condicaoMergulho = 'desconhecida';
-        descricao = 'Não há informações de marés para as próximas horas';
-    }
-
-    return {
-        proximaMare: proximaMare ? proximaMare.toISOString() : null,
-        tipoProximaMare: tipoProximaMare,
-        altura: alturaProximaMare,
-        condicaoMergulho: condicaoMergulho,
-        descricao: descricao
-    };
+    return interpolate(min, p1.minutes, p1.height, p2.minutes, p2.height);
 }
 
 /**
- * Consulta e analisa dados de marés
+ * Consulta e analisa dados de marés usando arquivo local JSON
  * @returns {Promise<object>} Dados de marés com análise para mergulho
  */
 export async function checarMare() {
-    const chaveCache = 'dadosMare';
-    const dadosCache = obterCache(chaveCache);
-
-    if (dadosCache) {
-        // Verifica se os dados ainda são relevantes (tem marés futuras)
-        const agora = new Date();
-        const temMaresFuturas = dadosCache.mareAlta.some(mare => new Date(mare) > agora) ||
-            dadosCache.mareBaixa.some(mare => new Date(mare) > agora);
-
-        if (temMaresFuturas) {
-            return dadosCache;
-        }
-    }
-
     try {
-        const url = `https://api.stormglass.io/v2/tide/extremes/point?lat=${CONFIG.LATITUDE}&lng=${CONFIG.LONGITUDE}`;
+        const response = await fetch('public/data/json/tabela.json');
+        const tideData = await response.json();
 
-        const dados = await buscarDadosAPI(url);
+        const agora = new Date();
+        const y = agora.getFullYear();
+        const m = agora.getMonth() + 1;
+        const d = agora.getDate();
 
-        if (!dados || !dados.data || dados.data.length === 0) {
-            throw new Error('Dados inválidos da API de marés');
+        const dayEntries = tideData.filter(e => e.year === y && e.month === m && e.day === d);
+        if (dayEntries.length === 0) throw new Error('Dados de maré não encontrados para hoje');
+
+        // Sorting for interpolation
+        const sortedPeaks = [...tideData].sort((a, b) => {
+            const d1 = new Date(a.year, a.month - 1, a.day, ...a.time.split(':')).getTime();
+            const d2 = new Date(b.year, b.month - 1, b.day, ...b.time.split(':')).getTime();
+            return d1 - d2;
+        });
+
+        const firstIdx = sortedPeaks.findIndex(e => e.year === y && e.month === m && e.day === d && e.time === dayEntries[0].time);
+        const prevPeak = sortedPeaks[firstIdx - 1];
+        const nextPeak = sortedPeaks[firstIdx + dayEntries.length];
+
+        const interpolationPoints = [];
+        const startOfDay = new Date(y, m - 1, d).getTime();
+
+        if (prevPeak) {
+            const dt = new Date(prevPeak.year, prevPeak.month - 1, prevPeak.day, ...prevPeak.time.split(':')).getTime();
+            interpolationPoints.push({ minutes: (dt - startOfDay) / 60000, height: prevPeak.height });
+        } else {
+            interpolationPoints.push({ minutes: timeToMinutes(dayEntries[0].time) - 360, height: dayEntries[0].height });
         }
 
-        // Extrair dados de marés com altura
-        const mareAlta = dados.data
-            .filter(entry => entry.type === 'high')
-            .map(entry => ({ time: entry.time, height: entry.height }));
+        dayEntries.forEach(e => interpolationPoints.push({ minutes: timeToMinutes(e.time), height: e.height }));
 
-        const mareBaixa = dados.data
-            .filter(entry => entry.type === 'low')
-            .map(entry => ({ time: entry.time, height: entry.height }));
+        if (nextPeak) {
+            const dt = new Date(nextPeak.year, nextPeak.month - 1, nextPeak.day, ...nextPeak.time.split(':')).getTime();
+            interpolationPoints.push({ minutes: (dt - startOfDay) / 60000, height: nextPeak.height });
+        } else {
+            const last = dayEntries[dayEntries.length - 1];
+            interpolationPoints.push({ minutes: timeToMinutes(last.time) + 360, height: last.height });
+        }
 
-        // Análise das próximas marés
-        const proximasMaresAnalise = analisarProximasMares(mareAlta, mareBaixa);
+        const nowMinutes = agora.getHours() * 60 + agora.getMinutes();
+        const currentHeight = interpolateTideAt(nowMinutes, interpolationPoints);
 
-        const resultado = {
-            mareAlta: mareAlta.map(m => m.time),
-            mareBaixa: mareBaixa.map(m => m.time),
-            analise: proximasMaresAnalise
-        };
+        // Calculate daily range (amplitude)
+        const heights = dayEntries.map(e => e.height);
+        const minH = Math.min(...heights);
+        const maxH = Math.max(...heights);
+        const amplitude = maxH - minH;
 
-        definirCache(chaveCache, resultado);
-        return resultado;
-    } catch (erro) {
-        console.error('Erro ao consultar marés:', erro);
+        // Classification based on amplitude
+        let classificacao = 'Intermediária';
+        let detalhe = 'Variação moderada, possível presença de correntes.';
+        let pontuacaoTid = 1;
+
+        if (amplitude < 0.6) {
+            classificacao = 'Maré Morta';
+            detalhe = 'Ideal para visibilidade, com pouco movimento de água.';
+            pontuacaoTid = 3;
+        } else if (amplitude < 0.9) {
+            classificacao = 'Intermediária Baixa';
+            detalhe = 'Condição favorável com correnteza moderada.';
+            pontuacaoTid = 2;
+        } else if (amplitude < 1.2) {
+            classificacao = 'Intermediária';
+            detalhe = 'Variação moderada, possível presença de correntes.';
+            pontuacaoTid = 1;
+        } else {
+            classificacao = 'Ampla Variação';
+            detalhe = 'Grande volume de água em movimento, visibilidade reduzida e correntes fortes.';
+            pontuacaoTid = 0;
+        }
+
+        // Find next event
+        const nextEvent = dayEntries.find(e => timeToMinutes(e.time) > nowMinutes) || nextPeak;
+
+        let condicaoMergulho = 'regular';
+        let recomendacao = '';
+        let estado = 'indefinido';
+
+        if (nextEvent) {
+            const eventMin = nextEvent.minutes !== undefined ? nextEvent.minutes : (nextEvent.day === d ? timeToMinutes(nextEvent.time) : timeToMinutes(nextEvent.time) + 1440);
+            const minutesToNext = eventMin - nowMinutes;
+            const hoursToNext = Math.floor(minutesToNext / 60);
+            const minsRemaining = Math.floor(minutesToNext % 60);
+
+            // Determinar tipo do próximo evento
+            const eventIdx = sortedPeaks.findIndex(p => p === nextEvent);
+            const isHigh = nextEvent.height > sortedPeaks[eventIdx - 1]?.height;
+            const tipoEvento = isHigh ? 'Maré Alta' : 'Maré Baixa';
+            estado = isHigh ? 'Enchendo' : 'Secando';
+
+            const tempoRestanteStr = hoursToNext > 0 ? `${hoursToNext}h ${minsRemaining}m` : `${minsRemaining}m`;
+
+            if (classificacao === 'Maré Morta') {
+                condicaoMergulho = 'excelente';
+                recomendacao = `Maré Morta (Amplitude: ${amplitude.toFixed(2)}m). Pouco movimento de água, ideal para visibilidade. Próxima ${tipoEvento} em ${tempoRestanteStr}.`;
+            } else if (!isHigh && hoursToNext < 1.5) {
+                condicaoMergulho = 'excelente';
+                recomendacao = `Perto do estofo da maré baixa (em ${tempoRestanteStr}). Ideal para visibilidade.`;
+            } else if (isHigh && hoursToNext < 1.5) {
+                condicaoMergulho = 'boa';
+                recomendacao = `Perto da maré alta (em ${tempoRestanteStr}). Bom para profundidade em alguns pontos.`;
+            } else {
+                condicaoMergulho = (pontuacaoTid >= 2) ? 'boa' : (pontuacaoTid === 1 ? 'regular' : 'ruim');
+                recomendacao = `Próxima ${tipoEvento} em ${tempoRestanteStr}. Maré em movimento, correnteza possível.`;
+            }
+        }
+
+        // Generate curve data for chart
+        const waveData = [];
+        for (let min = 0; min <= 1440; min += 10) {
+            waveData.push({ x: min, y: interpolateTideAt(min, interpolationPoints) });
+        }
+
         return {
-            mareAlta: [],
-            mareBaixa: [],
-            erro: erro.message
+            currentHeight,
+            dayEntries,
+            waveData,
+            nowMinutes,
+            amplitude,
+            classificacao,
+            detalhe,
+            pontuacao: pontuacaoTid,
+            favoravel: pontuacaoTid >= 2,
+            estado: estado,
+            altura: currentHeight,
+            analise: {
+                condicaoMergulho,
+                descricao: recomendacao
+            }
         };
+    } catch (err) {
+        console.error('Erro no módulo de marés:', err);
+        return { error: err.message, favoravel: false };
     }
-} 
+}

@@ -14,6 +14,8 @@ export const CONFIG = {
     LATITUDE: -23.9608,
     LONGITUDE: -46.3336,
     CACHE_EXPIRACAO: 3600000, // 1 hora em milissegundos
+    TABUA_MARE_API_URL: "http://localhost:3330",
+    SANTOS_HARBOR_ID: 57
 };
 
 /**
