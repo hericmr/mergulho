@@ -15,7 +15,7 @@ const COORDENADAS_SANTOS = {
 // Tradução das fases lunares do inglês para português
 const TRADUCAO_FASES = {
     'New Moon': 'Lua Nova',
-    'First Quarter': 'Quarto Crescente', 
+    'First Quarter': 'Quarto Crescente',
     'Full Moon': 'Lua Cheia',
     'Last Quarter': 'Quarto Minguante',
     'Waxing Crescent': 'Crescente',
@@ -35,7 +35,7 @@ function converterFaseLunarParaTexto(faseLuaNumero) {
     // 0.25 é 'quarto crescente' (first quarter)
     // 0.5 é 'lua cheia' (full moon)
     // 0.75 é 'quarto minguante' (last quarter)
-    
+
     if (faseLuaNumero === 0 || faseLuaNumero === 1) {
         return "Lua Nova";
     } else if (faseLuaNumero > 0 && faseLuaNumero < 0.25) {
@@ -64,7 +64,7 @@ function calcularIluminacao(faseLuaNumero) {
     // Na lua nova (0 ou 1) e na lua cheia (0.5) a iluminação é mais evidente
     // Fase 0/1 = 0% iluminação (lua nova)
     // Fase 0.5 = 100% iluminação (lua cheia)
-    
+
     // Converter para porcentagem variando de 0 a 100
     if (faseLuaNumero === 0 || faseLuaNumero === 1) {
         return 0; // Lua Nova = 0% iluminação
@@ -83,233 +83,206 @@ function calcularIluminacao(faseLuaNumero) {
  */
 export function avaliarFaseParaMergulho(faseLua, iluminacao) {
     const faseNormalizada = faseLua.toLowerCase();
-    
-    // Quarto Crescente é a melhor fase para mergulho (mais visibilidade sem excesso de luminosidade)
-    if (faseNormalizada.includes('quarto crescente') || 
+
+    // Quarto Crescente é a melhor fase para mergulho
+    if (faseNormalizada.includes('quarto crescente') ||
         faseNormalizada.includes('first quarter')) {
-        return { 
-            favoravel: true, 
-            pontuacao: 3, 
-            motivo: 'Quarto crescente é ideal para mergulho com boa visibilidade em Santos!!!' 
+        return {
+            favoravel: true,
+            pontuacao: 3,
+            motivo: 'Quarto crescente é ideal para mergulho com boa visibilidade em Santos porque nessa de maré de quadratura (morta). A baixa amplitude das marés reduz correntes e suspensão de sedimentos, proporcionando visibilidade cristalina em Santos.'
         };
     }
-    
-    // Fases próximas ao quarto crescente - boas para mergulho
+
+    // Fases próximas ao quarto crescente
     if (faseNormalizada.includes('crescente') && !faseNormalizada.includes('gibosa')) {
-        return { 
-            favoravel: true, 
-            pontuacao: 2, 
-            motivo: 'Fase crescente próxima ao quarto crescente - condições favoráveis' 
+        return {
+            favoravel: true,
+            pontuacao: 2,
+            motivo: 'Fase de transição com marés moderadas. Condições favoráveis com tendência à melhoria da visibilidade.'
         };
     }
-    
-    // Lua cheia - boa iluminação mas pode afetar comportamento marinho
-    if (faseNormalizada.includes('lua cheia') || 
+
+    // Lua cheia
+    if (faseNormalizada.includes('lua cheia') ||
         faseNormalizada.includes('full moon')) {
-        return { 
-            favoravel: false, 
-            pontuacao: 1, 
-            motivo: 'Só é boa se as demais condições estiverem favoráveis' 
+        return {
+            favoravel: false,
+            pontuacao: 1,
+            motivo: 'Marés de sizígia. A alta luminosidade é interessante, mas a grande variação de maré pode elevar a turbidez da água.'
         };
     }
-    
-    // Lua nova - baixa visibilidade
-    if (faseNormalizada.includes('lua nova') || 
+
+    // Lua nova
+    if (faseNormalizada.includes('lua nova') ||
         faseNormalizada.includes('new moon')) {
-        return { 
-            favoravel: false, 
-            pontuacao: 0, 
-            motivo: 'Lua nova ocorre antes da crescente... normalmente não é boa, mas talvez a agua ainda esteja melhorando para mergulho' 
-        };
-    }
-    
-    // Fases minguantes - não ideais para mergulho
-    if (faseNormalizada.includes('minguante') || 
-        faseNormalizada.includes('last quarter') || 
-        faseNormalizada.includes('waning')) {
-        return { 
-            favoravel: false, 
+        return {
+            favoravel: false,
             pontuacao: 0,
-            motivo: 'Fases minguante, pouco favorável para mergulho' 
+            motivo: 'Marés de sizígia. Ausência de luminosidade natural e grande variação de maré, o que costuma reduzir a visibilidade subaquática.'
         };
     }
-    
+
+    // Fases minguantes
+    if (faseNormalizada.includes('minguante') ||
+        faseNormalizada.includes('last quarter') ||
+        faseNormalizada.includes('waning')) {
+        return {
+            favoravel: false,
+            pontuacao: 0,
+            motivo: 'Condições de visibilidade instáveis devido ao movimento residual das grandes marés de sizígia.'
+        };
+    }
+
     // Caso padrão
-    return { 
-        favoravel: false, 
+    return {
+        favoravel: false,
         pontuacao: 0,
-        motivo: 'Fase lunar não ideal para condições de mergulho em Santos' 
+        motivo: 'Fase lunar não ideal para condições de mergulho em Santos'
     };
 }
 
+// Tabela de Fases da Lua 2025 - Fonte: Departamento de Astronomia do IAG/USP
+const FASES_LUA_2025 = [
+    { data: "2025-01-06T20:56:00", fase: "Quarto Crescente" }, { data: "2025-01-13T19:26:00", fase: "Lua Cheia" }, { data: "2025-01-21T17:30:00", fase: "Quarto Minguante" }, { data: "2025-01-29T09:35:00", fase: "Lua Nova" },
+    { data: "2025-02-05T05:02:00", fase: "Quarto Crescente" }, { data: "2025-02-12T10:53:00", fase: "Lua Cheia" }, { data: "2025-02-20T14:32:00", fase: "Quarto Minguante" }, { data: "2025-02-27T21:44:00", fase: "Lua Nova" },
+    { data: "2025-03-06T13:31:00", fase: "Quarto Crescente" }, { data: "2025-03-14T03:54:00", fase: "Lua Cheia" }, { data: "2025-03-22T08:29:00", fase: "Quarto Minguante" }, { data: "2025-03-29T07:57:00", fase: "Lua Nova" },
+    { data: "2025-04-04T23:14:00", fase: "Quarto Crescente" }, { data: "2025-04-12T21:22:00", fase: "Lua Cheia" }, { data: "2025-04-20T22:35:00", fase: "Quarto Minguante" }, { data: "2025-04-27T16:31:00", fase: "Lua Nova" },
+    { data: "2025-05-04T10:51:00", fase: "Quarto Crescente" }, { data: "2025-05-12T13:55:00", fase: "Lua Cheia" }, { data: "2025-05-20T08:58:00", fase: "Quarto Minguante" }, { data: "2025-05-27T00:02:00", fase: "Lua Nova" },
+    { data: "2025-06-03T00:40:00", fase: "Quarto Crescente" }, { data: "2025-06-11T04:43:00", fase: "Lua Cheia" }, { data: "2025-06-18T16:19:00", fase: "Quarto Minguante" }, { data: "2025-06-25T07:31:00", fase: "Lua Nova" },
+    { data: "2025-07-02T16:30:00", fase: "Quarto Crescente" }, { data: "2025-07-10T17:36:00", fase: "Lua Cheia" }, { data: "2025-07-17T21:37:00", fase: "Quarto Minguante" }, { data: "2025-07-24T16:11:00", fase: "Lua Nova" },
+    { data: "2025-08-01T09:41:00", fase: "Quarto Crescente" }, { data: "2025-08-09T04:55:00", fase: "Lua Cheia" }, { data: "2025-08-16T02:12:00", fase: "Quarto Minguante" }, { data: "2025-08-23T03:06:00", fase: "Lua Nova" },
+    { data: "2025-08-31T03:25:00", fase: "Quarto Crescente" }, { data: "2025-09-07T15:08:00", fase: "Lua Cheia" }, { data: "2025-09-14T07:32:00", fase: "Quarto Minguante" }, { data: "2025-09-21T16:54:00", fase: "Lua Nova" },
+    { data: "2025-09-29T20:53:00", fase: "Quarto Crescente" }, { data: "2025-10-07T00:47:00", fase: "Lua Cheia" }, { data: "2025-10-13T15:12:00", fase: "Quarto Minguante" }, { data: "2025-10-21T09:25:00", fase: "Lua Nova" },
+    { data: "2025-10-29T13:20:00", fase: "Quarto Crescente" }, { data: "2025-11-05T10:19:00", fase: "Lua Cheia" }, { data: "2025-11-12T02:28:00", fase: "Quarto Minguante" }, { data: "2025-11-20T03:47:00", fase: "Lua Nova" },
+    { data: "2025-11-28T03:58:00", fase: "Quarto Crescente" }, { data: "2025-12-04T20:14:00", fase: "Lua Cheia" }, { data: "2025-12-11T17:51:00", fase: "Lua Quarto Minguante" }, { data: "2025-12-19T22:43:00", fase: "Lua Nova" },
+    { data: "2025-12-27T16:09:00", fase: "Quarto Crescente" }
+];
+
 /**
- * Busca e analisa a fase lunar atual usando a API do U.S. Naval Observatory (USNO)
- * Mais confiável para cálculos astronômicos
+ * Busca e analisa a fase lunar atual usando o arquivo local JSON
  * @returns {Promise<object>} Dados da fase lunar com avaliação
  */
 export async function checarFaseDaLua() {
-    const chaveCache = 'faseLua';
+    const chaveCache = 'faseLua_v_local_fix';
     const dadosCache = obterCache(chaveCache);
-    
+
     if (dadosCache) {
         return dadosCache;
     }
-    
+
     try {
-        // Data atual em formato YYYY-MM-DD para a API USNO
+        const cacheBuster = `v=${new Date().getTime()}`;
+        let response = await fetch(`public/data/json/moon_phases.json?${cacheBuster}`);
+        if (!response.ok && CONFIG.PUBLIC_URL) {
+            response = await fetch(`${CONFIG.PUBLIC_URL}/public/data/json/moon_phases.json?${cacheBuster}`.replace(/\/+/g, '/'));
+        }
+
+        if (!response.ok) throw new Error("Falha ao carregar dados de fases da lua");
+
+        const moonData = await response.json();
         const hoje = new Date();
-        const dataFormatada = `${hoje.getFullYear()}-${hoje.getMonth() + 1}-${hoje.getDate()}`;
-        
-        // Usar a API do U.S. Naval Observatory (USNO) - altamente confiável para cálculos astronômicos
-        // Primeiro, tentamos obter os dados através do endpoint de frações iluminadas
-        const url = `https://aa.usno.navy.mil/api/moon/phases/date?date=${dataFormatada}&nump=4`;
-        
-        const resposta = await fetch(url);
-        if (!resposta.ok) {
-            throw new Error(`Erro na API de fase lunar: ${resposta.status} - ${resposta.statusText}`);
-        }
-        
-        const dados = await resposta.json();
-        
-        if (!dados || !dados.phasedata || dados.phasedata.length === 0) {
-            throw new Error('Dados inválidos da API de fase lunar: formato de resposta inesperado');
-        }
-        
-        // Determinar a fase atual encontrando a fase mais próxima (antes ou depois)
-        const fasesProximas = dados.phasedata.sort((a, b) => {
-            const dataA = new Date(`${a.year}-${a.month}-${a.day}T${a.time}Z`);
-            const dataB = new Date(`${b.year}-${b.month}-${b.day}T${b.time}Z`);
-            return Math.abs(dataA - hoje) - Math.abs(dataB - hoje);
-        });
-        
-        const faseMaisProxima = fasesProximas[0];
-        const dataFase = new Date(`${faseMaisProxima.year}-${faseMaisProxima.month}-${faseMaisProxima.day}T${faseMaisProxima.time}Z`);
-        
-        // Calcular a diferença em dias para determinar a fase intermediária
-        const difDias = Math.abs(Math.round((hoje - dataFase) / (1000 * 60 * 60 * 24)));
-        const direcao = hoje > dataFase ? 'após' : 'antes';
-        
-        let faseAtual = faseMaisProxima.phase;
-        let iluminacao = 0;
-        
-        // Determinar fase intermediária e iluminação aproximada
-        if (difDias >= 1) {
-            // Estamos em uma fase intermediária
-            const proximaFase = fasesProximas[1]?.phase || faseMaisProxima.phase;
-            
-            if (faseAtual === 'New Moon' && direcao === 'após') {
-                faseAtual = 'Waxing Crescent';
-                iluminacao = Math.min(difDias * 7, 49); // Aproximadamente 7% por dia
-            } else if (faseAtual === 'First Quarter' && direcao === 'após') {
-                faseAtual = 'Waxing Gibbous';
-                iluminacao = 50 + Math.min(difDias * 7, 49);
-            } else if (faseAtual === 'Full Moon' && direcao === 'após') {
-                faseAtual = 'Waning Gibbous';
-                iluminacao = 100 - Math.min(difDias * 7, 49);
-            } else if (faseAtual === 'Last Quarter' && direcao === 'após') {
-                faseAtual = 'Waning Crescent';
-                iluminacao = 50 - Math.min(difDias * 7, 49);
-            } else if (faseAtual === 'New Moon' && direcao === 'antes') {
-                faseAtual = 'Waning Crescent';
-                iluminacao = Math.min(difDias * 7, 49);
-            } else if (faseAtual === 'First Quarter' && direcao === 'antes') {
-                faseAtual = 'Waxing Crescent';
-                iluminacao = 50 - Math.min(difDias * 7, 49);
-            } else if (faseAtual === 'Full Moon' && direcao === 'antes') {
-                faseAtual = 'Waxing Gibbous';
-                iluminacao = 100 - Math.min(difDias * 7, 49);
-            } else if (faseAtual === 'Last Quarter' && direcao === 'antes') {
-                faseAtual = 'Waning Gibbous';
-                iluminacao = 50 + Math.min(difDias * 7, 49);
+        const nowTime = hoje.getTime();
+
+        // Encontrar a última fase que já ocorreu
+        let currentPhaseIdx = -1;
+        for (let i = 0; i < moonData.length; i++) {
+            const pDate = new Date(moonData[i].date).getTime();
+            if (pDate > nowTime) {
+                currentPhaseIdx = i - 1;
+                break;
             }
-        } else {
-            // Estamos exatamente na fase principal
-            if (faseAtual === 'New Moon') iluminacao = 0;
-            else if (faseAtual === 'First Quarter') iluminacao = 50;
-            else if (faseAtual === 'Full Moon') iluminacao = 100;
-            else if (faseAtual === 'Last Quarter') iluminacao = 50;
         }
-        
-        // Traduzir fase para português
-        const fasePtBr = TRADUCAO_FASES[faseAtual] || faseAtual;
-        
+        if (currentPhaseIdx === -1 && moonData.length > 0) {
+            // Verificar se a primeira data ainda é futuro -> então anterior seria desconhecido? ou assumimos algo?
+            // Se moonData[0] é futuro, não temos info do passado. Mas JSON começa em 2011.
+            // Se hoje > ultimo dado, pega o ultimo.
+            const firstDate = new Date(moonData[0].date).getTime();
+            if (nowTime >= firstDate) {
+                currentPhaseIdx = moonData.length - 1;
+            }
+        }
+
+        if (currentPhaseIdx === -1) {
+            throw new Error("Data atual fora do alcance dos dados lunares");
+        }
+
+        const currentEvent = moonData[currentPhaseIdx];
+        const rawPhase = currentEvent.phase; // Nova, Crescente, Cheia, Minguante
+
+        // Mapeamento
+        // O CSV original usa nomes em português: NOVA, CRESCENTE, CHEIA, MINGUANTE
+        // O código existente espera nomes parciais ou inglês. Vamos mapear para o padrão esperado por avaliarFaseParaMergulho
+        // avaliarFaseParaMergulho verifica includes('lua nova'), includes('quarto crescente'), etc.
+
+        // Mapeamento Expresso:
+        // Nova -> Lua Nova
+        // Crescente -> Quarto Crescente
+        // Cheia -> Lua Cheia
+        // Minguante -> Quarto Minguante
+
+        let faseTexto = rawPhase;
+        if (rawPhase === 'Nova') faseTexto = 'Lua Nova';
+        if (rawPhase === 'Crescente') faseTexto = 'Quarto Crescente';
+        if (rawPhase === 'Cheia') faseTexto = 'Lua Cheia';
+        if (rawPhase === 'Minguante') faseTexto = 'Quarto Minguante';
+
+        // Iluminação aproximada
+        let iluminacao = 0;
+        if (faseTexto === 'Lua Nova') iluminacao = 0;
+        else if (faseTexto === 'Quarto Crescente') iluminacao = 50;
+        else if (faseTexto === 'Lua Cheia') iluminacao = 100;
+        else if (faseTexto === 'Quarto Minguante') iluminacao = 50;
+
+        // Avaliação
+        const avaliacao = avaliarFaseParaMergulho(faseTexto, iluminacao);
+
         const resultado = {
-            texto: fasePtBr,
-            quartoCrescente: faseAtual === 'First Quarter',
+            texto: faseTexto,
+            quartoCrescente: faseTexto === 'Quarto Crescente',
             iluminacao: iluminacao,
-            favoravelParaMergulho: avaliarFaseParaMergulho(fasePtBr, iluminacao)
+            favoravelParaMergulho: avaliacao,
+            fonte: "Dados Internos (2011-2030)"
         };
-        
+
         definirCache(chaveCache, resultado, CONFIG.CACHE_EXPIRACAO);
         return resultado;
+
     } catch (erro) {
-        console.error('Erro ao consultar fase da lua:', erro);
-        
-        // Fallback para o método alternativo usando OpenWeatherMap
-        try {
-            return await checarFaseDaLuaFallback();
-        } catch (erroFallback) {
-            return {
-                texto: 'Não foi possível determinar',
-                quartoCrescente: false,
-                iluminacao: 0,
-                favoravelParaMergulho: { 
-                    favoravel: false, 
-                    pontuacao: 0, 
-                    motivo: 'Informação não disponível para Santos' 
-                },
-                erro: `${erro.message}. Fallback também falhou: ${erroFallback.message}`,
-                erroCompleto: `Erro no módulo de fase lunar: ${erro.message}`
-            };
-        }
+        console.error('Erro ao consultar fases da lua locais:', erro);
+        return {
+            texto: 'Erro',
+            quartoCrescente: false,
+            iluminacao: 0,
+            favoravelParaMergulho: { favoravel: false, pontuacao: 0, motivo: "Erro ao carregar dados lunares" },
+            erro: erro.message
+        };
     }
 }
 
 /**
- * Método alternativo para obter fase lunar usando OpenWeatherMap
- * Usado como fallback se o USNO falhar
- * @returns {Promise<object>} Dados da fase lunar
+ * Função mantida para compatibilidade, mas não utilizada no fluxo principal com tabela fixa
  */
 async function checarFaseDaLuaFallback() {
-    // Usar a API OneCall 3.0 do OpenWeatherMap para obter dados da lua
-    const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${COORDENADAS_SANTOS.LATITUDE}&lon=${COORDENADAS_SANTOS.LONGITUDE}&exclude=minutely,hourly,alerts&appid=${CONFIG.OPENWEATHER_KEY}&units=metric`;
-    
-    const resposta = await fetch(url);
-    if (!resposta.ok) {
-        throw new Error(`Erro na API de fase lunar fallback: ${resposta.status} - ${resposta.statusText}`);
-    }
-    
-    const dados = await resposta.json();
-    
-    if (!dados || !dados.daily || dados.daily.length === 0 || dados.daily[0].moon_phase === undefined) {
-        throw new Error('Dados inválidos da API de fase lunar fallback: formato de resposta inesperado');
-    }
-    
-    // Obtém a fase lunar do dia atual (primeiro dia do array daily)
-    const faseLuaNumero = dados.daily[0].moon_phase;
-    const faseLuaTexto = converterFaseLunarParaTexto(faseLuaNumero);
-    const iluminacao = calcularIluminacao(faseLuaNumero);
-    
-    return {
-        texto: faseLuaTexto,
-        quartoCrescente: faseLuaTexto.toLowerCase().includes('quarto crescente'),
-        iluminacao: iluminacao,
-        favoravelParaMergulho: avaliarFaseParaMergulho(faseLuaTexto, iluminacao)
-    };
+    return { texto: "Função Desativada", iluminacao: 0 };
 }
 
 /**
  * Calcula dias até o próximo quarto crescente 
  * @returns {Promise<object>} Informações sobre o próximo quarto crescente
  */
+/**
+ * Calcula dias até o próximo quarto crescente 
+ * @returns {Promise<object>} Informações sobre o próximo quarto crescente
+ */
 export async function diasParaProximoQuartoCrescente() {
-    const chaveCache = 'proximoQuartoCrescente';
+    const chaveCache = 'proximoQuartoCrescente_local';
     const dadosCache = obterCache(chaveCache);
-    
+
     if (dadosCache) {
         const dataCache = new Date(dadosCache.data);
         const hoje = new Date();
-        
+
         if (dataCache > hoje) {
             return {
                 dias: Math.ceil((dataCache - hoje) / (1000 * 60 * 60 * 24)),
@@ -317,59 +290,52 @@ export async function diasParaProximoQuartoCrescente() {
             };
         }
     }
-    
+
     try {
-        // Usar a API do U.S. Naval Observatory para obter as próximas fases da lua
+        const cacheBuster = `v=${new Date().getTime()}`;
+        let response = await fetch(`public/data/json/moon_phases.json?${cacheBuster}`);
+        if (!response.ok && CONFIG.PUBLIC_URL) {
+            response = await fetch(`${CONFIG.PUBLIC_URL}/public/data/json/moon_phases.json?${cacheBuster}`.replace(/\/+/g, '/'));
+        }
+
+        if (!response.ok) throw new Error("Falha ao carregar dados de fases da lua");
+
+        const moonData = await response.json();
         const hoje = new Date();
-        const dataFormatada = `${hoje.getFullYear()}-${hoje.getMonth() + 1}-${hoje.getDate()}`;
-        
-        // Solicitar as próximas 8 fases da lua (cobrindo aproximadamente 2 meses)
-        const url = `https://aa.usno.navy.mil/api/moon/phases/date?date=${dataFormatada}&nump=8`;
-        
-        const resposta = await fetch(url);
-        if (!resposta.ok) {
-            throw new Error(`Erro na API de fases lunares: ${resposta.status} - ${resposta.statusText}`);
+        const nowTime = hoje.getTime();
+
+        // Encontrar o próximo Quarto Crescente (Crescente no CSV original)
+        let proximadata = null;
+
+        for (const evento of moonData) {
+            const pDate = new Date(evento.date).getTime();
+            if (pDate > nowTime && evento.phase === 'Crescente') {
+                proximadata = new Date(evento.date);
+                break;
+            }
         }
-        
-        const dados = await resposta.json();
-        
-        if (!dados || !dados.phasedata || dados.phasedata.length === 0) {
-            throw new Error('Dados inválidos da API de fases lunares');
-        }
-        
-        // Encontrar o próximo quarto crescente
-        const proximoQuartoCrescente = dados.phasedata.find(fase => 
-            fase.phase === 'First Quarter' && 
-            new Date(`${fase.year}-${fase.month}-${fase.day}T${fase.time}Z`) > hoje
-        );
-        
-        if (proximoQuartoCrescente) {
-            const dataQuartoCrescente = new Date(`${proximoQuartoCrescente.year}-${proximoQuartoCrescente.month}-${proximoQuartoCrescente.day}T${proximoQuartoCrescente.time}Z`);
-            
+
+        if (proximadata) {
             const resultado = {
-                dias: Math.ceil((dataQuartoCrescente - hoje) / (1000 * 60 * 60 * 24)),
-                data: dataQuartoCrescente
+                dias: Math.ceil((proximadata - hoje) / (1000 * 60 * 60 * 24)),
+                data: proximadata
             };
-            
-            definirCache(chaveCache, { data: dataQuartoCrescente }, 24 * 60 * 60 * 1000); // Cache de 24h
+            definirCache(chaveCache, { data: proximadata }, 24 * 60 * 60 * 1000);
             return resultado;
         }
-        
-        // Fallback para o método alternativo
-        return await diasParaProximoQuartoCrescenteFallback();
+
+        return {
+            dias: null,
+            mensagem: "Próximo quarto crescente não encontrado nos dados locais."
+        };
+
     } catch (erro) {
         console.error('Erro ao calcular próximo quarto crescente:', erro);
-        
-        // Fallback para o método alternativo
-        try {
-            return await diasParaProximoQuartoCrescenteFallback();
-        } catch (erroFallback) {
-            return {
-                dias: null,
-                mensagem: "Não foi possível determinar o próximo quarto crescente para Santos",
-                erro: `${erro.message}. Fallback também falhou: ${erroFallback.message}`
-            };
-        }
+        return {
+            dias: null,
+            mensagem: "Erro ao buscar dados lunares",
+            erro: erro.message
+        };
     }
 }
 
@@ -380,25 +346,25 @@ export async function diasParaProximoQuartoCrescente() {
 async function diasParaProximoQuartoCrescenteFallback() {
     // Usar OpenWeatherMap como fallback
     const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${COORDENADAS_SANTOS.LATITUDE}&lon=${COORDENADAS_SANTOS.LONGITUDE}&exclude=current,minutely,hourly,alerts&appid=${CONFIG.OPENWEATHER_KEY}`;
-    
+
     const resposta = await fetch(url);
     if (!resposta.ok) {
         throw new Error(`Erro na API: ${resposta.status} - ${resposta.statusText}`);
     }
-    
+
     const dados = await resposta.json();
-    
+
     if (!dados || !dados.daily || dados.daily.length === 0) {
         throw new Error('Dados inválidos da API para previsão lunar');
     }
-    
+
     // Busca o próximo quarto crescente nos próximos dias
     const hoje = new Date();
     let proximaDataQuartoCrescente = null;
-    
+
     for (let i = 0; i < dados.daily.length; i++) {
         const dia = dados.daily[i];
-        
+
         // Verifica se é quarto crescente (valor próximo a 0.25)
         if (Math.abs(dia.moon_phase - 0.25) < 0.01) {
             const dataQuartoCrescente = new Date(dia.dt * 1000);
@@ -406,14 +372,14 @@ async function diasParaProximoQuartoCrescenteFallback() {
             break;
         }
     }
-    
+
     if (proximaDataQuartoCrescente) {
         return {
             dias: Math.ceil((proximaDataQuartoCrescente - hoje) / (1000 * 60 * 60 * 24)),
             data: proximaDataQuartoCrescente
         };
     }
-    
+
     // Se não conseguimos encontrar nos próximos dias, retornamos uma mensagem
     return {
         dias: null,

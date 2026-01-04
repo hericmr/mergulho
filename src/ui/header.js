@@ -23,8 +23,32 @@ export function criarHeader() {
 
 /**
  * Inicializa o header na página
- * Não faz nada, pois o header está no HTML
+ * Substitui o header existente ou adiciona um novo se não existir
  */
 export function inicializarHeader() {
-    console.log('Header já está presente no HTML');
+    const container = document.querySelector('.container');
+    
+    if (!container) {
+        console.error('Container não encontrado para adicionar o header');
+        return;
+    }
+    
+    // Remover header existente se houver
+    const headerExistente = container.querySelector('header');
+    if (headerExistente) {
+        headerExistente.remove();
+    }
+    
+    // Criar o novo header e adicionar como primeiro filho do container
+    const header = criarHeader();
+    
+    // Se já existe algum elemento filho no container, inserir antes do primeiro filho
+    // Se não, apenas adicionar no final
+    if (container.firstChild) {
+        container.insertBefore(header, container.firstChild);
+    } else {
+        container.appendChild(header);
+    }
+    
+    console.log('Header inicializado com sucesso');
 } 

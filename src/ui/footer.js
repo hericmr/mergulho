@@ -8,52 +8,50 @@
  */
 export function criarFooter() {
     const footer = document.createElement('footer');
-    
+    footer.className = 'footer-fixed';
+
     // Container para organizar o conteúdo
     const footerContainer = document.createElement('div');
     footerContainer.className = 'footer-content';
-    
-    // Seção de APIs
-    const apiBadges = document.createElement('div');
-    apiBadges.className = 'api-badges';
-    
-    const stormGlassBadge = document.createElement('span');
-    stormGlassBadge.className = 'api-badge';
-    stormGlassBadge.textContent = 'StormGlass API';
-    
-    const openWeatherBadge = document.createElement('span');
-    openWeatherBadge.className = 'api-badge';
-    openWeatherBadge.textContent = 'OpenWeatherMap API';
-    
-    apiBadges.appendChild(stormGlassBadge);
-    apiBadges.appendChild(openWeatherBadge);
-    
-    // Seção de texto
-    const footerText = document.createElement('div');
-    footerText.className = 'footer-text';
-    
-    const copyright = document.createElement('p');
-    copyright.textContent = 'Mestre dos Mares © 2024';
-    
-    const credito = document.createElement('p');
-    credito.className = 'text-sm';
-    credito.innerHTML = 'Desenvolvido pelo pirata <a href="https://hericmr.github.io/me" target="_blank" class="text-blue-500 underline">Héric Moura</a>';
-    
-    footerText.appendChild(copyright);
-    footerText.appendChild(credito);
-    
-    // Adicionar todas as seções ao footer
-    footerContainer.appendChild(apiBadges);
-    footerContainer.appendChild(footerText);
+
+    // Conteúdo único e simplificado
+    const info = document.createElement('p');
+    info.style.textAlign = 'center';
+    info.style.fontSize = '0.85rem';
+    info.style.color = '#666';
+    info.style.lineHeight = '1.6';
+    info.innerHTML = `
+        Desenvolvido pelo pirata <strong>Héric Moura</strong>. <br>
+        Dados de marés e clima: <strong>Marinha do Brasil</strong>, <strong>StormGlass</strong> e <strong>OpenWeatherMap</strong>. <br>
+        Fases da Lua: <strong>IAG/USP</strong>.
+    `;
+
+    footerContainer.appendChild(info);
     footer.appendChild(footerContainer);
-    
+
     return footer;
 }
 
 /**
  * Inicializa o footer na página
- * Não faz nada, pois o footer está no HTML
+ * Substitui o footer existente ou adiciona um novo se não existir
  */
 export function inicializarFooter() {
-    console.log('Footer já está presente no HTML');
+    const container = document.querySelector('.container');
+
+    if (!container) {
+        console.error('Container não encontrado para adicionar o footer');
+        return;
+    }
+
+    // Remover footer existente se houver
+    const footerExistente = container.querySelector('footer');
+    if (footerExistente) {
+        footerExistente.remove();
+    }
+
+    // Adicionar novo footer
+    container.appendChild(criarFooter());
+
+    console.log('Footer inicializado com sucesso');
 } 

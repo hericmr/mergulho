@@ -9,7 +9,7 @@ import { LOCALIZACAO } from '../config.js';
  */
 export function ehVerao() {
     const mesAtual = new Date().getMonth() + 1; // getMonth() retorna 0-11
-    
+
     if (LOCALIZACAO.HEMISFERIO_SUL) {
         return [12, 1, 2, 3].includes(mesAtual); // Verão no hemisfério sul: dez-mar
     } else {
@@ -25,15 +25,15 @@ export function diasParaVerao() {
     const hoje = new Date();
     const anoAtual = hoje.getFullYear();
     let inicioVerao;
-    
+
     if (LOCALIZACAO.HEMISFERIO_SUL) {
         inicioVerao = new Date(hoje.getMonth() >= 11 ? anoAtual : anoAtual - 1, 11, 21);
         const fimVerao = new Date(anoAtual, 2, 21); // 21 de março
-        
+
         if (hoje >= inicioVerao && hoje <= fimVerao) {
             return 0; // Já estamos no verão
         }
-        
+
         // Se já passamos do verão, o próximo é no final do ano
         if (hoje > fimVerao) {
             inicioVerao = new Date(anoAtual, 11, 21);
@@ -41,17 +41,17 @@ export function diasParaVerao() {
     } else {
         inicioVerao = new Date(anoAtual, 5, 21); // 21 de junho
         const fimVerao = new Date(anoAtual, 8, 23); // 23 de setembro
-        
+
         if (hoje >= inicioVerao && hoje <= fimVerao) {
             return 0; // Já estamos no verão
         }
-        
+
         // Se já passamos do verão, o próximo é no próximo ano
         if (hoje > fimVerao) {
             inicioVerao = new Date(anoAtual + 1, 5, 21);
         }
     }
-    
+
     const diferencaDias = Math.ceil((inicioVerao - hoje) / (1000 * 60 * 60 * 24));
     return diferencaDias;
 }
@@ -64,7 +64,7 @@ export function checarEstacao() {
     const hoje = new Date();
     const mesAtual = hoje.getMonth() + 1; // getMonth() retorna 0-11
     let nome, adequadaParaMergulho;
-    
+
     if (LOCALIZACAO.HEMISFERIO_SUL) {
         // Estações no hemisfério sul
         if ([12, 1, 2].includes(mesAtual)) {
@@ -72,7 +72,7 @@ export function checarEstacao() {
             adequadaParaMergulho = {
                 favoravel: true,
                 pontuacao: 4,
-                motivo: "Verão é a estação ideal para mergulho, com águas mais quentes e maior visibilidade."
+                motivo: "Verão é a estação ideal para mergulho, com águas mais quentes e maior visibilidade. Mas costuma ter uma grande quantidade de turistas."
             };
         } else if ([3, 4, 5].includes(mesAtual)) {
             nome = "Outono";
@@ -117,7 +117,7 @@ export function checarEstacao() {
             adequadaParaMergulho = {
                 favoravel: true,
                 pontuacao: 3,
-                motivo: "Verão é a estação ideal para mergulho, com águas mais quentes e maior visibilidade."
+                motivo: "Verão é a estação ideal para mergulho, com águas mais quentes e maior visibilidade. Mas costuma ter uma grande quantidade de turistas."
             };
         } else {
             nome = "Outono";
@@ -128,7 +128,7 @@ export function checarEstacao() {
             };
         }
     }
-    
+
     return {
         nome,
         adequadaParaMergulho,
