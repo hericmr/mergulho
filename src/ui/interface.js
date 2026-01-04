@@ -271,9 +271,20 @@ function renderTideChart(data) {
     const ctx = canvas.getContext('2d');
 
     // Destruir instância anterior de forma robusta
-    const existingChart = Chart.getChart('tideChart');
-    if (existingChart) {
-        existingChart.destroy();
+    try {
+        // Tenta encontrar pelo ID do canvas
+        const existingChartById = Chart.getChart('tideChart');
+        if (existingChartById) {
+            existingChartById.destroy();
+        }
+
+        // Garantia adicional: se a variável global ainda tiver algo que não foi pego pelo ID
+        if (tideChartInstance) {
+            tideChartInstance.destroy();
+            tideChartInstance = null;
+        }
+    } catch (e) {
+        console.warn('Erro ao destruir gráfico anterior:', e);
     }
 
     tideChartInstance = new Chart(ctx, {

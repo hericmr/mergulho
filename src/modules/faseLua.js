@@ -160,12 +160,11 @@ const FASES_LUA_2025 = [
 ];
 
 /**
- * Busca e analisa a fase lunar atual usando a tabela estática de 2025
- * Fonte: IAG/USP
+ * Busca e analisa a fase lunar atual usando o arquivo local JSON
  * @returns {Promise<object>} Dados da fase lunar com avaliação
  */
 export async function checarFaseDaLua() {
-    const chaveCache = 'faseLua_v_final_v2'; // Refresh for exact user string
+    const chaveCache = 'faseLua_v_local_fix';
     const dadosCache = obterCache(chaveCache);
 
     if (dadosCache) {
@@ -173,57 +172,91 @@ export async function checarFaseDaLua() {
     }
 
     try {
+        const cacheBuster = `v=${new Date().getTime()}`;
+        let response = await fetch(`public/data/json/moon_phases.json?${cacheBuster}`);
+        if (!response.ok && CONFIG.PUBLIC_URL) {
+            response = await fetch(`${CONFIG.PUBLIC_URL}/public/data/json/moon_phases.json?${cacheBuster}`.replace(/\/+/g, '/'));
+        }
+
+        if (!response.ok) throw new Error("Falha ao carregar dados de fases da lua");
+
+        const moonData = await response.json();
         const hoje = new Date();
-        let melhorFase = null;
-        let menorDiferenca = Infinity;
+        const nowTime = hoje.getTime();
 
-        // Encontrar a fase mais próxima na tabela
-        for (const evento of FASES_LUA_2025) {
-            const dataEvento = new Date(evento.data);
-            const diferenca = Math.abs(hoje - dataEvento);
-
-            if (diferenca < menorDiferenca) {
-                menorDiferenca = diferenca;
-                melhorFase = evento;
+        // Encontrar a última fase que já ocorreu
+        let currentPhaseIdx = -1;
+        for (let i = 0; i < moonData.length; i++) {
+            const pDate = new Date(moonData[i].date).getTime();
+            if (pDate > nowTime) {
+                currentPhaseIdx = i - 1;
+                break;
+            }
+        }
+        if (currentPhaseIdx === -1 && moonData.length > 0) {
+            // Verificar se a primeira data ainda é futuro -> então anterior seria desconhecido? ou assumimos algo?
+            // Se moonData[0] é futuro, não temos info do passado. Mas JSON começa em 2011.
+            // Se hoje > ultimo dado, pega o ultimo.
+            const firstDate = new Date(moonData[0].date).getTime();
+            if (nowTime >= firstDate) {
+                currentPhaseIdx = moonData.length - 1;
             }
         }
 
-        if (!melhorFase) {
-            throw new Error("Não foi possível determinar a fase lunar na tabela de 2025");
+        if (currentPhaseIdx === -1) {
+            throw new Error("Data atual fora do alcance dos dados lunares");
         }
 
-        const faseAtual = melhorFase.fase;
-        let iluminacao = 0;
+        const currentEvent = moonData[currentPhaseIdx];
+        const rawPhase = currentEvent.phase; // Nova, Crescente, Cheia, Minguante
 
-        // Calcular iluminação aproximada baseada na fase
-        if (faseAtual === 'Lua Nova') iluminacao = 0;
-        else if (faseAtual === 'Quarto Crescente') iluminacao = 50;
-        else if (faseAtual === 'Lua Cheia') iluminacao = 100;
-        else if (faseAtual === 'Quarto Minguante') iluminacao = 50;
+        // Mapeamento
+        // O CSV original usa nomes em português: NOVA, CRESCENTE, CHEIA, MINGUANTE
+        // O código existente espera nomes parciais ou inglês. Vamos mapear para o padrão esperado por avaliarFaseParaMergulho
+        // avaliarFaseParaMergulho verifica includes('lua nova'), includes('quarto crescente'), etc.
+
+        // Mapeamento Expresso:
+        // Nova -> Lua Nova
+        // Crescente -> Quarto Crescente
+        // Cheia -> Lua Cheia
+        // Minguante -> Quarto Minguante
+
+        let faseTexto = rawPhase;
+        if (rawPhase === 'Nova') faseTexto = 'Lua Nova';
+        if (rawPhase === 'Crescente') faseTexto = 'Quarto Crescente';
+        if (rawPhase === 'Cheia') faseTexto = 'Lua Cheia';
+        if (rawPhase === 'Minguante') faseTexto = 'Quarto Minguante';
+
+        // Iluminação aproximada
+        let iluminacao = 0;
+        if (faseTexto === 'Lua Nova') iluminacao = 0;
+        else if (faseTexto === 'Quarto Crescente') iluminacao = 50;
+        else if (faseTexto === 'Lua Cheia') iluminacao = 100;
+        else if (faseTexto === 'Quarto Minguante') iluminacao = 50;
+
+        // Avaliação
+        const avaliacao = avaliarFaseParaMergulho(faseTexto, iluminacao);
 
         const resultado = {
-            texto: faseAtual,
-            quartoCrescente: faseAtual === 'Quarto Crescente',
+            texto: faseTexto,
+            quartoCrescente: faseTexto === 'Quarto Crescente',
             iluminacao: iluminacao,
-            favoravelParaMergulho: avaliarFaseParaMergulho(faseAtual, iluminacao),
-            fonte: "Departamento de Astronomia do IAG/USP"
+            favoravelParaMergulho: avaliacao,
+            fonte: "Dados Internos (2011-2030)"
         };
 
         definirCache(chaveCache, resultado, CONFIG.CACHE_EXPIRACAO);
         return resultado;
 
     } catch (erro) {
-        console.error('Erro ao consultar tabela de fase da lua:', erro);
-
-        // Fallback retorna Lua Nova para segurança em caso de erro extremo
-        const resultadoErro = {
-            texto: 'Lua Nova',
+        console.error('Erro ao consultar fases da lua locais:', erro);
+        return {
+            texto: 'Erro',
             quartoCrescente: false,
             iluminacao: 0,
-            favoravelParaMergulho: avaliarFaseParaMergulho('Lua Nova', 0),
+            favoravelParaMergulho: { favoravel: false, pontuacao: 0, motivo: "Erro ao carregar dados lunares" },
             erro: erro.message
         };
-        return resultadoErro;
     }
 }
 
@@ -238,8 +271,12 @@ async function checarFaseDaLuaFallback() {
  * Calcula dias até o próximo quarto crescente 
  * @returns {Promise<object>} Informações sobre o próximo quarto crescente
  */
+/**
+ * Calcula dias até o próximo quarto crescente 
+ * @returns {Promise<object>} Informações sobre o próximo quarto crescente
+ */
 export async function diasParaProximoQuartoCrescente() {
-    const chaveCache = 'proximoQuartoCrescente';
+    const chaveCache = 'proximoQuartoCrescente_local';
     const dadosCache = obterCache(chaveCache);
 
     if (dadosCache) {
@@ -255,57 +292,50 @@ export async function diasParaProximoQuartoCrescente() {
     }
 
     try {
-        // Usar a API do U.S. Naval Observatory para obter as próximas fases da lua
+        const cacheBuster = `v=${new Date().getTime()}`;
+        let response = await fetch(`public/data/json/moon_phases.json?${cacheBuster}`);
+        if (!response.ok && CONFIG.PUBLIC_URL) {
+            response = await fetch(`${CONFIG.PUBLIC_URL}/public/data/json/moon_phases.json?${cacheBuster}`.replace(/\/+/g, '/'));
+        }
+
+        if (!response.ok) throw new Error("Falha ao carregar dados de fases da lua");
+
+        const moonData = await response.json();
         const hoje = new Date();
-        const dataFormatada = `${hoje.getFullYear()}-${hoje.getMonth() + 1}-${hoje.getDate()}`;
+        const nowTime = hoje.getTime();
 
-        // Solicitar as próximas 8 fases da lua (cobrindo aproximadamente 2 meses)
-        const url = `https://aa.usno.navy.mil/api/moon/phases/date?date=${dataFormatada}&nump=8`;
+        // Encontrar o próximo Quarto Crescente (Crescente no CSV original)
+        let proximadata = null;
 
-        const resposta = await fetch(url);
-        if (!resposta.ok) {
-            throw new Error(`Erro na API de fases lunares: ${resposta.status} - ${resposta.statusText}`);
+        for (const evento of moonData) {
+            const pDate = new Date(evento.date).getTime();
+            if (pDate > nowTime && evento.phase === 'Crescente') {
+                proximadata = new Date(evento.date);
+                break;
+            }
         }
 
-        const dados = await resposta.json();
-
-        if (!dados || !dados.phasedata || dados.phasedata.length === 0) {
-            throw new Error('Dados inválidos da API de fases lunares');
-        }
-
-        // Encontrar o próximo quarto crescente
-        const proximoQuartoCrescente = dados.phasedata.find(fase =>
-            fase.phase === 'First Quarter' &&
-            new Date(`${fase.year}-${fase.month}-${fase.day}T${fase.time}Z`) > hoje
-        );
-
-        if (proximoQuartoCrescente) {
-            const dataQuartoCrescente = new Date(`${proximoQuartoCrescente.year}-${proximoQuartoCrescente.month}-${proximoQuartoCrescente.day}T${proximoQuartoCrescente.time}Z`);
-
+        if (proximadata) {
             const resultado = {
-                dias: Math.ceil((dataQuartoCrescente - hoje) / (1000 * 60 * 60 * 24)),
-                data: dataQuartoCrescente
+                dias: Math.ceil((proximadata - hoje) / (1000 * 60 * 60 * 24)),
+                data: proximadata
             };
-
-            definirCache(chaveCache, { data: dataQuartoCrescente }, 24 * 60 * 60 * 1000); // Cache de 24h
+            definirCache(chaveCache, { data: proximadata }, 24 * 60 * 60 * 1000);
             return resultado;
         }
 
-        // Fallback para o método alternativo
-        return await diasParaProximoQuartoCrescenteFallback();
+        return {
+            dias: null,
+            mensagem: "Próximo quarto crescente não encontrado nos dados locais."
+        };
+
     } catch (erro) {
         console.error('Erro ao calcular próximo quarto crescente:', erro);
-
-        // Fallback para o método alternativo
-        try {
-            return await diasParaProximoQuartoCrescenteFallback();
-        } catch (erroFallback) {
-            return {
-                dias: null,
-                mensagem: "Não foi possível determinar o próximo quarto crescente para Santos",
-                erro: `${erro.message}. Fallback também falhou: ${erroFallback.message}`
-            };
-        }
+        return {
+            dias: null,
+            mensagem: "Erro ao buscar dados lunares",
+            erro: erro.message
+        };
     }
 }
 

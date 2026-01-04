@@ -34,11 +34,33 @@ function interpolateTideAt(min, points) {
  */
 export async function checarMare() {
     try {
-        const publicUrl = CONFIG.PUBLIC_URL || '';
-        const jsonPath = `${publicUrl}/public/data/json/tabela.json`.replace(/\/+/g, '/');
+        // Adicionando um cache buster para garantir que pegamos a versão mais recente
+        const cacheBuster = `v=${new Date().getTime()}`;
+        const relativePath = `public/data/json/tabela.json?${cacheBuster}`;
 
-        console.log(`Buscando marés em: ${jsonPath}`);
-        const response = await fetch(jsonPath);
+        console.log(`Buscando marés em: ${relativePath}`);
+        let response = await fetch(relativePath);
+
+        // Se falhar o relativo (status 404), tenta com PUBLIC_URL
+        if (!response.ok && CONFIG.PUBLIC_URL) {
+            const absolutePath = `${CONFIG.PUBLIC_URL}/public/data/json/tabela.json?${cacheBuster}`.replace(/\/+/g, '/');
+            console.log(`Relativo falhou, tentando absoluto: ${absolutePath}`);
+            response = await fetch(absolutePath);
+        }
+
+        // Fetch Moon Phases
+        let moonResponse = null;
+        try {
+            const moonPath = `public/data/json/moon_phases.json?${cacheBuster}`;
+            moonResponse = await fetch(moonPath);
+            if (!moonResponse.ok && CONFIG.PUBLIC_URL) {
+                moonResponse = await fetch(`${CONFIG.PUBLIC_URL}/public/data/json/moon_phases.json?${cacheBuster}`.replace(/\/+/g, '/'));
+            }
+        } catch (e) {
+            console.warn("Could not fetch moon phases", e);
+        }
+
+        const moonData = moonResponse && moonResponse.ok ? await moonResponse.json() : [];
 
         if (!response.ok) {
             throw new Error(`Falha ao carregar dados de maré: ${response.status} ${response.statusText}`);
@@ -159,6 +181,60 @@ export async function checarMare() {
             waveData.push({ x: min, y: interpolateTideAt(min, interpolationPoints) });
         }
 
+        // Moon Phase Logic
+        let faseLuaInfo = {
+            texto: 'Desconhecida',
+            favoravel: true,
+            motivo: 'Dados indisponíveis'
+        };
+
+        if (moonData.length > 0) {
+            // Find the last phase event before or equal to now
+            const nowTime = agora.getTime();
+
+            // moonData is sorted by date. Find the last one where date <= now
+            // Using simple iteration since array is small per year ~50 items, but total 20 years is ~1000.
+            // Binary search would be better or just filter.
+            // Optimize: search backwards or filter where date <= now
+
+            // We can find the index where the next event is in the future
+            let currentPhaseIdx = -1;
+
+            for (let i = 0; i < moonData.length; i++) {
+                const pDate = new Date(moonData[i].date).getTime();
+                if (pDate > nowTime) {
+                    currentPhaseIdx = i - 1;
+                    break;
+                }
+            }
+
+            if (currentPhaseIdx === -1 && moonData.length > 0) {
+                // All in past?
+                currentPhaseIdx = moonData.length - 1;
+            }
+
+            if (currentPhaseIdx >= 0) {
+                const currentPhase = moonData[currentPhaseIdx];
+                const phaseName = currentPhase.phase; // Nova, Crescente, Cheia, Minguante
+
+                // Map to display text and favorability
+                const phaseMap = {
+                    'Nova': { text: 'Lua Nova', fav: false, desc: 'Marés de sizígia (maior amplitude).' },
+                    'Crescente': { text: 'Lua Crescente', fav: true, desc: 'Marés de quadratura (menor amplitude).' },
+                    'Cheia': { text: 'Lua Cheia', fav: false, desc: 'Marés de sizígia (maior amplitude).' },
+                    'Minguante': { text: 'Lua Minguante', fav: true, desc: 'Marés de quadratura (menor amplitude).' }
+                };
+
+                const info = phaseMap[phaseName] || { text: phaseName, fav: true, desc: '' };
+
+                faseLuaInfo = {
+                    texto: info.text,
+                    favoravel: info.fav,
+                    motivo: info.desc
+                };
+            }
+        }
+
         return {
             currentHeight,
             dayEntries,
@@ -171,10 +247,23 @@ export async function checarMare() {
             favoravel: pontuacaoTid >= 2,
             estado: estado,
             altura: currentHeight,
-            analise: {
+            faseLua: faseLuaInfo, // Add explicit faseLua for callers who check it directly
+            analise: { // Merge into existing structures if needed, but 'checarMare' returns the whole object usually
                 condicaoMergulho,
                 descricao: recomendacao
-            }
+            },
+            // Ensure interface.js finds it deep inside if it looks there, 
+            // but checking interface.js again, it accesses: resultadoAvaliacao.fatoresAnalisados.faseLua
+            // The return of checarMare is result of 'mare' factor? 
+            // Wait, looking at interface.js:
+            // resultadoAvaliacao.fatoresAnalisados.faseLua
+            // This suggests 'checarMare' is NOT the only thing returning the full result.
+            // 'checarMare' seems to return TIDE data.
+            // There must be a main 'avaliar' function that aggregates everything.
+            // I should check 'src/modules/resultado.js' or 'src/app.js'.
+            // Because 'checarMare' seems focused on Tides.
+            // However, Moon Phase is strongly related to Tides.
+            // I will return 'faseLua' here, and let the aggregator pick it up.
         };
     } catch (err) {
         console.error('Erro no módulo de marés:', err);
